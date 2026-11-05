@@ -23,6 +23,7 @@ Process Iniciar(string projeto, string url)
     info.ArgumentList.Add("--urls"); info.ArgumentList.Add(url);
     info.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
     info.Environment["ApiUrl"] = apiUrl;
+    info.Environment["Dados__Provedor"] = "Json";
     info.Environment["Dados__Arquivo"]=Path.Combine(pastaTeste,"clubes.json");
     info.Environment["Dados__ContasArquivo"]=Path.Combine(pastaTeste,"contas.json");
     foreach (var perfil in new[] { "Administrador", "Socio", "Plataforma", "Presidente", "Tesoureiro" })

@@ -9,15 +9,41 @@ using Clube360.Infrastructure;
 using Clube360.Contracts;
 using Clube360.Domain;
 using Clube360.Api.Seguranca;
+using Npgsql;
 var builder=WebApplication.CreateBuilder(args);
 if (builder.Configuration["Dados:Arquivo"] is null || builder.Configuration["Dados:ContasArquivo"] is null)
     CaminhosDadosLocais.Preparar(builder.Environment.ContentRootPath);
 builder.WebHost.ConfigureKestrel(o=>o.Limits.MaxRequestBodySize=65536);
 builder.Services.ConfigureHttpJsonOptions(o=>o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton(sp=>new RepositorioClubes(builder.Configuration["Dados:Arquivo"]??Path.Combine(builder.Environment.ContentRootPath,"App_Data","clubes.json")));
-builder.Services.AddSingleton<IRepositorioClubes>(sp=>sp.GetRequiredService<RepositorioClubes>());
-builder.Services.AddSingleton<IDadosDemonstracao>(sp=>sp.GetRequiredService<RepositorioClubes>());
+var arquivoClubes = builder.Configuration["Dados:Arquivo"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "clubes.json");
+var arquivoContas = builder.Configuration["Dados:ContasArquivo"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "contas.json");
+var provedor = builder.Configuration["Dados:Provedor"] ?? "Json";
+var usarPostgres = provedor.Equals("PostgreSQL", StringComparison.OrdinalIgnoreCase);
+if (usarPostgres)
+{
+    var conexao = builder.Configuration.GetConnectionString("Clube360");
+    if (string.IsNullOrWhiteSpace(conexao))
+        throw new InvalidOperationException("Configure ConnectionStrings:Clube360 para usar o PostgreSQL.");
+
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(conexao));
+    builder.Services.AddSingleton<ArmazenamentoPostgres>();
+    builder.Services.AddSingleton<RepositorioClubesPostgres>();
+    builder.Services.AddSingleton<IRepositorioClubes>(sp => sp.GetRequiredService<RepositorioClubesPostgres>());
+    builder.Services.AddSingleton<IDadosDemonstracao>(sp => sp.GetRequiredService<RepositorioClubesPostgres>());
+}
+else if (provedor.Equals("Json", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton(_ => new RepositorioClubes(arquivoClubes));
+    builder.Services.AddSingleton<IRepositorioClubes>(sp => sp.GetRequiredService<RepositorioClubes>());
+    builder.Services.AddSingleton<IDadosDemonstracao>(sp => sp.GetRequiredService<RepositorioClubes>());
+}
+else
+{
+    throw new InvalidOperationException("Dados:Provedor deve ser Json ou PostgreSQL.");
+}
 builder.Services.AddSingleton<ConsultaDemonstracao>();
 builder.Services.AddSingleton<GestaoClubes>();
 builder.Services.AddSingleton<ContasLocais>();
@@ -31,13 +57,20 @@ builder.Services.AddRateLimiter(o=>{
         _=>new FixedWindowRateLimiterOptions{PermitLimit=5,Window=TimeSpan.FromMinutes(1),QueueLimit=0}));
 });
 var app=builder.Build();
+if (usarPostgres)
+{
+    app.Services.GetRequiredService<ArmazenamentoPostgres>().Inicializar(
+        () => RepositorioClubes.CarregarEstado(arquivoClubes),
+        () => ContasLocais.CarregarArquivo(arquivoContas));
+    app.Logger.LogInformation("Persistência do Clube360 conectada ao PostgreSQL.");
+}
 app.Use(async(ctx,next)=>{
     try{await next();}
     catch(UnauthorizedAccessException){if(!ctx.Response.HasStarted){ctx.Response.StatusCode=403;await ctx.Response.WriteAsJsonAsync(new{mensagem="Acesso não permitido."});}}
     catch(ArgumentException e){if(!ctx.Response.HasStarted){ctx.Response.StatusCode=400;await ctx.Response.WriteAsJsonAsync(new{mensagem=e.Message});}}
 });
 app.UseAuthentication();app.UseAuthorization();app.UseRateLimiter();
-app.MapGet("/api/v1/status",()=>new{sistema="Clube360",versao="0.3.1",mensagem="API em funcionamento",demonstracao=app.Environment.IsDevelopment(),dataUtc=DateTimeOffset.UtcNow});
+app.MapGet("/api/v1/status",()=>new{sistema="Clube360",versao="0.3.1",mensagem="API em funcionamento",demonstracao=app.Environment.IsDevelopment(),persistencia=usarPostgres?"PostgreSQL":"JSON",dataUtc=DateTimeOffset.UtcNow});
 if(app.Environment.IsDevelopment()) {
     app.MapPost("/api/v1/login",async(LoginRequest r,ContasLocais contas,HttpContext ctx)=>{
         var conta=contas.Validar(r.Email,r.Senha);

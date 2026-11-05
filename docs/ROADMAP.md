@@ -2,7 +2,7 @@
 
 1. Validar a versão 0.3 no navegador e compilar/executar o Android no ambiente do usuário.
 2. Confirmar as [decisões de negócio](DECISOES_PENDENTES.md), especialmente familiares, convidados, taxas, vencimentos e cancelamento.
-3. Substituir JSON por banco relacional, com migrações, concorrência, backups e trilha de auditoria.
+3. Evoluir a persistência PostgreSQL de documentos JSONB para tabelas relacionais, com migrações, backups e trilha de auditoria.
 4. Implementar identidade global e vínculos de associado em múltiplos clubes.
 5. Integrar banco/provedor para boleto, envio, pagamento, conciliação e reembolso.
 6. Completar eventos: descontos por vínculo/clube, capacidade, cancelamento e presença.

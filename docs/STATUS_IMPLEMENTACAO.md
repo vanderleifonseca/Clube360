@@ -11,7 +11,7 @@
 - Agenda de eventos/locações, conflito de horários, cobrança da reserva e cancelamento até 120 horas antes.
 - Mensalidades por competência, contas vencidas, baixa manual com usuário/data e cancelamento/reembolso pendente.
 - Solicitações/reclamações com retorno e histórico do próprio associado.
-- JSON local persistente para cadastros, operações e contas criadas.
+- Persistência de cadastros, operações e contas criadas em JSON local ou PostgreSQL. O modo PostgreSQL importa os arquivos locais na primeira ativação.
 
 ## Verificado neste ambiente
 
@@ -23,7 +23,7 @@ O aplicativo MAUI foi atualizado no código, mas **esta versão Android ainda n�
 
 Não há emissão/envio de boleto, liquidação automática nem devolução bancária. O botão de boleto mostra a pendência. Baixa de pagamento é manual; não constitui confirmação bancária.
 
-A persistência JSON atende apenas desenvolvimento com uma instância da API. Não há transação distribuída entre arquivo de contas e arquivo de negócios; não há banco de produção, migrações ou auditoria completa. Proteja e faça backup dos dois arquivos juntos. Os endpoints de negócio são habilitados somente em Development.
+A persistência JSON atende desenvolvimento com uma instância da API. Proteja e faça backup dos dois arquivos juntos. O modo PostgreSQL usa documentos JSONB e gravações transacionais, com importação testada em PostgreSQL local via PGlite. A conexão do Clube360 ao Supabase precisa ser validada na instalação do usuário. Veja [configuração do PostgreSQL](POSTGRESQL.md). Os endpoints de negócio são habilitados somente em Development.
 
 As contas iniciais de teste mantêm credenciais anteriores e vínculos locais. Novas contas têm um clube por vínculo; múltiplos clubes de um associado ainda não estão concluídos. Dados de CPF e contatos dos exemplos históricos permanecem vazios, devendo ser preenchidos ao editar.
 

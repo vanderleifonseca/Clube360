@@ -12,10 +12,19 @@ public sealed class RepositorioClubes : IRepositorioClubes, IDadosDemonstracao
     private static readonly JsonSerializerOptions Json=new(JsonSerializerDefaults.Web){WriteIndented=true};
     public RepositorioClubes(string arquivo) {
         _arquivo=Path.GetFullPath(arquivo);Directory.CreateDirectory(Path.GetDirectoryName(_arquivo)!);
-        _estado=File.Exists(_arquivo) ? JsonSerializer.Deserialize<EstadoClubes>(File.ReadAllText(_arquivo),Json)??throw new InvalidDataException("Dados locais inválidos.")
-            : DadosDemonstracao.CriarEstado();
-        if(_estado.Versao!=1)throw new InvalidDataException("Versão de dados não suportada.");
+        _estado=CarregarEstado(_arquivo);
         if(!File.Exists(_arquivo))Alterar(s=>true);
+    }
+
+    public static EstadoClubes CarregarEstado(string arquivo)
+    {
+        var estado = File.Exists(arquivo)
+            ? JsonSerializer.Deserialize<EstadoClubes>(File.ReadAllText(arquivo), Json)
+                ?? throw new InvalidDataException("Dados locais inválidos.")
+            : DadosDemonstracao.CriarEstado();
+        if (estado.Versao != 1)
+            throw new InvalidDataException("Versão de dados não suportada.");
+        return estado;
     }
     private EstadoClubes Copia()=>JsonSerializer.Deserialize<EstadoClubes>(JsonSerializer.SerializeToUtf8Bytes(_estado,Json),Json)!;
     public T Ler<T>(Func<EstadoClubes,T> consulta){lock(_gate)return consulta(Copia());}
