@@ -240,4 +240,4 @@ A priorização é uma proposta. O isolamento entre clubes deve existir desde a 
 
 “Vamos continuar o projeto Clube360 — Plataforma de Clubes de Pesca. Leia docs/PLANEJAMENTO.md. Preserve as regras confirmadas e diferencie-as das propostas ainda abertas. Vamos primeiro fechar os requisitos e detalhar os fluxos e as telas. Consulte docs/EXECUCAO_VSCODE.md e preserve as regras confirmadas ao continuar a implementação.”
 
-Repositório oficial: https://github.com/vanderleifonseca/FisgadaPro. A documentação inicial foi publicada em 27/10/2026. A versão 0.2.0 adiciona login e autorização à demonstração local; veja docs/STATUS_IMPLEMENTACAO.md.
+Repositório oficial: https://github.com/vanderleifonseca/Clube360. A documentação inicial foi publicada em 27/10/2026. A versão 0.2.0 adiciona login e autorização à demonstração local; veja docs/STATUS_IMPLEMENTACAO.md.

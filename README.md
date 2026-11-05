@@ -1,5 +1,7 @@
 # Clube360 — Projeto Clubes
 
+Repositório oficial: https://github.com/vanderleifonseca/Clube360.
+
 Versão 0.3.1 de desenvolvimento, em C#/.NET 10: API ASP.NET Core, painel Blazor e aplicativo .NET MAUI Android. Desenvolvido para uso no Visual Studio Code (azul).
 
 A nova etapa adapta o projeto para gestão social de vários clubes. Os clubes iniciais são **foz 2** e **guaira2**. Reaproveita autenticação, isolamento por clube, camadas de domínio, extrato familiar e identidade visual.

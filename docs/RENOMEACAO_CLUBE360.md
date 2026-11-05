@@ -42,4 +42,15 @@ O nome exibido no celular é Clube360; o ícone/splash usa C360. O identificador
 
 ## Endereço do projeto
 
-O repositório continua no endereço https://github.com/vanderleifonseca/FisgadaPro, para manter seu git remote e o fluxo de atualização atual. A pasta local C:\maui\FisgadaPro também pode continuar com esse nome. Esses caminhos, o identificador de credenciais e o pacote Android são referências de compatibilidade; o produto e os projetos agora se chamam Clube360.
+O repositório foi renomeado para **Clube360** e está em https://github.com/vanderleifonseca/Clube360. O histórico de commits foi preservado.
+
+Na cópia já existente no computador, ajuste o endereço remoto:
+
+```powershell
+cd C:\maui\FisgadaPro
+git remote set-url origin https://github.com/vanderleifonseca/Clube360.git
+git remote -v
+git pull --ff-only
+```
+
+As linhas fetch e push devem mostrar o novo endereço. A pasta local `C:\maui\FisgadaPro` pode continuar com esse nome. A alteração do endereço remoto não muda cadastros, contas ou arquivos locais. Os identificadores de credenciais e pacote Android continuam preservados por compatibilidade.
