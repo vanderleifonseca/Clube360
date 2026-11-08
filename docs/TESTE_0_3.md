@@ -24,9 +24,9 @@ Cadastre pessoas com todos os campos pedidos. CPF e nascimento são obrigatório
 
 Cadastre um dependente ligado a titular do mesmo clube e, em Acessos, seu usuário Socio. Dependente não tem mensalidade fixa; seus consumos ficam no titular, identificando o consumidor. Se inativar uma pessoa, sua conta Socio deixa de acessar.
 
-## 4. Agenda e aluguel
+## 4. Áreas sociais e agendamentos
 
-Cadastre ou edite espaço e taxa de aluguel. Os salões iniciais têm valores fictícios de R$ 250 e R$ 300. Entre como associado e escolha período futuro, com mais de cinco dias de antecedência. Reserve e confira o débito no Financeiro.
+No menu **Áreas sociais**, cadastre ou edite o nome e o tipo. Piscina e academia aparecem no catálogo. Churrasqueira, quadra de esportes, campo de futebol e salão de festas também aparecem na agenda de reservas. Os salões iniciais têm taxas fictícias de R$ 250 e R$ 300. Entre como associado e escolha um período futuro, com mais de cinco dias de antecedência. Reserve e confira o débito no Financeiro se a área tiver taxa.
 
 Tente reservar o mesmo espaço no mesmo período: a API deve recusar. Eventos vinculados ao espaço também bloqueiam a agenda. Cancele dentro do prazo e confira a cobrança cancelada. Para locação paga, o sistema indica reembolso pendente; não devolve dinheiro automaticamente. O limite atual é 120 horas antes do início.
 

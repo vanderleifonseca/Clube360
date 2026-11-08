@@ -2,7 +2,11 @@ namespace Clube360.Contracts;
 public sealed record PessoaDto(Guid Id,Guid ClubeId,string Nome,string Categoria,bool DireitoVoto,bool Isento,
     Guid? TitularId,string Cpf,string Endereco,string Bairro,string Sexo,string EstadoCivil,string Cidade,
     string Uf,string Fone,string Email,DateOnly? DataNascimento,string[]? Interesses,decimal? ValorMensal,bool Ativo,string? Parentesco = null);
-public sealed record EspacoDto(Guid Id,Guid ClubeId,string Nome,decimal TaxaAluguel,bool Ativo);
+public sealed record EspacoDto(Guid Id, Guid ClubeId, string Nome, decimal TaxaAluguel, bool Ativo, string? Tipo = null)
+{
+    public string? TipoEfetivo => TiposAreaSocial.Identificar(Tipo, Nome);
+    public bool Reservavel => TiposAreaSocial.Reservavel(TipoEfetivo);
+}
 public sealed record EventoDto(Guid Id,Guid ClubeId,string Nome,string Descricao,DateTimeOffset Inicio,DateTimeOffset Fim,
     string Publico,decimal ValorInscricao,Guid? EspacoId,bool Ativo);
 public sealed record AgendaDto(Guid Id,string Tipo,string Nome,Guid? EspacoId,DateTimeOffset Inicio,DateTimeOffset Fim);

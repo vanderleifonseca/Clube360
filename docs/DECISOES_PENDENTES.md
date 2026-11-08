@@ -21,4 +21,4 @@ As regras já confirmadas estão em [Planejamento](PLANEJAMENTO.md). Estas escol
 | Dados e produção | Arquivos JSON locais, negócio apenas Development | Banco, migrações, backups, HTTPS, hospedagem, retenção e proteção de dados |
 | Acessos | Senha mínima de quatro no desenvolvimento | Política de produção, recuperação, bloqueio, revogação e auditoria ampliada |
 
-Atletas, barcos, estaleiro, colocação de embarcações na água, oficina/cantina e mensagens em massa pertencem ao escopo anterior preservado em [histórico](historico/PLANEJAMENTO_0_2.md). Não foram descartados como negócio nem considerados implementados por esta revisão. Confirmar prioridade e eventual relação do atleta com as novas categorias.
+O escopo atual é de clube social. Barcos, estaleiro e oficina náutica ficam no [histórico](historico/PLANEJAMENTO_0_2.md). Confirmar horários de funcionamento e regras de uso das áreas sociais, além da prioridade de atletas, cantina e mensagens em massa.

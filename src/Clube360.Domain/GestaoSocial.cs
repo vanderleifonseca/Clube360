@@ -5,7 +5,7 @@ public enum SituacaoCobranca { Aberta, Paga, Cancelada, ReembolsoPendente }
 public enum TipoSolicitacao { Solicitacao, Reclamacao }
 public enum StatusSolicitacao { Aberta, EmAnalise, Concluida, Cancelada }
 public enum StatusConvite { Pendente, Aprovado, Rejeitado }
-public sealed record Espaco(Guid Id, Guid ClubeId, string Nome, decimal TaxaAluguel, bool Ativo = true);
+public sealed record Espaco(Guid Id, Guid ClubeId, string Nome, decimal TaxaAluguel, bool Ativo = true, string? Tipo = null);
 public sealed record Evento(Guid Id, Guid ClubeId, string Nome, string Descricao,
     DateTimeOffset Inicio, DateTimeOffset Fim, PublicoEvento Publico,
     decimal ValorInscricao, Guid? EspacoId = null, bool Ativo = true);

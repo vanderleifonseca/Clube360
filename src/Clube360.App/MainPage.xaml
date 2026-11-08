@@ -12,7 +12,7 @@
 <VerticalStackLayout x:Name="ContaPainel" IsVisible="False" Spacing="14">
 <Label x:Name="Nome" FontAttributes="Bold" /><Picker x:Name="ClubesPicker" Title="Clube" ItemDisplayBinding="{Binding Nome}" SelectedIndexChanged="AoSelecionarClube" />
 <HorizontalStackLayout Spacing="5"><Button Text="Conta" Clicked="AbrirConta" /><Button Text="Financeiro" Clicked="AbrirFinanceiro" /><Button Text="Agenda" Clicked="AbrirAgenda" /></HorizontalStackLayout>
-<HorizontalStackLayout Spacing="5"><Button Text="Eventos" Clicked="AbrirEventos" /><Button Text="Solicitações" Clicked="AbrirSolicitacoes" /></HorizontalStackLayout>
+<HorizontalStackLayout Spacing="5"><Button Text="Áreas sociais" Clicked="AbrirAreas" /><Button Text="Eventos" Clicked="AbrirEventos" /><Button Text="Solicitações" Clicked="AbrirSolicitacoes" /></HorizontalStackLayout>
 <VerticalStackLayout x:Name="Conteudo" Spacing="14" />
 <Button x:Name="SairBotao" Text="Sair" Clicked="AoSair" />
 </VerticalStackLayout>

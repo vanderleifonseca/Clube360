@@ -36,7 +36,7 @@ dotnet run --project tests/Clube360.Domain.Checks
 dotnet run --project tests/Clube360.Access.Checks
 ```
 
-Esperados: 59 e 64 verificações, respectivamente. Execute na raiz do repositório.
+Esperados: 68 e 67 verificações, respectivamente. Execute na raiz do repositório.
 
 ## Android
 

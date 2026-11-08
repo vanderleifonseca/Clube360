@@ -36,6 +36,29 @@ try{
     Verificar(dep.TitularId==pessoa.Id,"Vínculo dependente.");
     Falha(()=>g.CriarPessoa(guaira,new(){Nome="Dependente outro clube",Cpf="12345678909",Categoria="Dependente",TitularId=pessoa.Id,Parentesco="Mae",DataNascimento=new(1960,1,1)}));
     var inicio=clock.GetUtcNow().AddDays(10);var fim=inicio.AddHours(4);
+    var areasSociais = repo.Ler(s => s.Espacos.Where(e => e.ClubeId == foz).ToArray());
+    Verificar(areasSociais.Select(e => e.Tipo).ToHashSet().SetEquals(TiposAreaSocial.Todos),
+        "O clube de demonstração deve ter os seis tipos de área.");
+    foreach (var tipo in new[] { TiposAreaSocial.Piscina, TiposAreaSocial.Academia })
+    {
+        var area = areasSociais.Single(e => e.Tipo == tipo);
+        Falha(() => g.Reservar(foz, pessoa.Id, new(area.Id, inicio, fim, "Uso social")));
+    }
+    foreach (var tipo in new[] { TiposAreaSocial.Churrasqueira, TiposAreaSocial.Quadra, TiposAreaSocial.Campo })
+    {
+        var area = areasSociais.Single(e => e.Tipo == tipo);
+        var agendamento = g.Reservar(foz, pessoa.Id, new(area.Id, inicio, fim, "Uso social"));
+        Verificar(agendamento.EspacoId == area.Id && agendamento.Valor == 0, "Agendamento gratuito não confirmado.");
+        Falha(() => g.Reservar(foz, pessoa.Id, new(area.Id, inicio.AddHours(1), fim, "Horário ocupado")));
+    }
+
+    // Simula um salão gravado antes de o cadastro ter o campo Tipo.
+    repo.Alterar(s =>
+    {
+        var indice = s.Espacos.FindIndex(e => e.Id == DadosDemonstracao.SalaoFoz);
+        s.Espacos[indice] = s.Espacos[indice] with { Nome = "Salão social", Tipo = null };
+        return true;
+    });
     var reserva=g.Reservar(foz,dep.Id,new(DadosDemonstracao.SalaoFoz,inicio,fim,"Churrasco"));
     Verificar(reserva.TitularId==pessoa.Id&&reserva.Valor==250,"Responsável da reserva.");
     var cobranca=repo.Ler(s=>s.Cobrancas.Single(c=>c.OrigemId==reserva.Id));

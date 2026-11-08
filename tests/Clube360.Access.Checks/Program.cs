@@ -105,6 +105,20 @@ try
     using(var proibido=await tesoureiro.PostAsJsonAsync($"/api/v1/clubes/{lago}/espacos",new EspacoRequest("Não permitido",100)))
         Verificar(proibido.StatusCode==HttpStatusCode.Forbidden,"Tesoureiro cadastrou espaço.");
     var inicio=DateTimeOffset.UtcNow.AddDays(10);
+    EspacoDto piscina;
+    using (var resposta = await presidente.PostAsJsonAsync($"/api/v1/clubes/{lago}/espacos",
+        new EspacoRequest("Piscina principal", 25, TiposAreaSocial.Piscina)))
+    {
+        Verificar(resposta.IsSuccessStatusCode, "Presidente não cadastrou a piscina.");
+        piscina = (await resposta.Content.ReadFromJsonAsync<EspacoDto>())!;
+    }
+    var areas = await socioNovo.GetFromJsonAsync<List<EspacoDto>>($"/api/v1/clubes/{lago}/espacos");
+    Verificar(areas!.Any(a => a.Id == piscina.Id && a.Tipo == TiposAreaSocial.Piscina &&
+        !a.Reservavel && a.TaxaAluguel == 0), "Catálogo da piscina incorreto.");
+    using (var resposta = await socioNovo.PostAsJsonAsync($"/api/v1/clubes/{lago}/reservas",
+        new ReservaRequest(piscina.Id, inicio, inicio.AddHours(1), "Tentativa de agendamento")))
+        Verificar(resposta.StatusCode == HttpStatusCode.BadRequest, "A API aceitou reserva de piscina.");
+
     using(var r=await socioNovo.PostAsJsonAsync($"/api/v1/clubes/{lago}/reservas",new ReservaRequest(Guid.Parse("40000000-0000-0000-0000-000000000001"),inicio,inicio.AddHours(3),"Festa teste")))
     {
         Verificar(r.IsSuccessStatusCode,"Reserva falhou.");

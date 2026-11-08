@@ -4,7 +4,7 @@ Repositório oficial: https://github.com/vanderleifonseca/Clube360.
 
 Versão 0.3.1 de desenvolvimento, em C#/.NET 10: API ASP.NET Core, painel Blazor e aplicativo .NET MAUI Android. Desenvolvido para uso no Visual Studio Code (azul).
 
-A nova etapa adapta o projeto para gestão social de vários clubes. Os clubes iniciais são **foz 2** e **guaira2**. Reaproveita autenticação, isolamento por clube, camadas de domínio, extrato familiar e identidade visual.
+A nova etapa adapta o projeto para gestão de clubes sociais. Os clubes iniciais são **foz 2** e **guaira2**. Reaproveita autenticação, isolamento por clube, camadas de domínio, extrato familiar e identidade visual.
 
 Veja também [a mudança para Clube360](docs/RENOMEACAO_CLUBE360.md), incluindo novos comandos e preservação dos dados.
 
@@ -42,7 +42,8 @@ Não há senha padrão; a senha mínima de quatro caracteres permanece apenas ne
 - Cadastro e edição de clubes, associados e dependentes; categorias e direito a voto.
 - Super administrador, presidente, administrador do clube, tesoureiro e associado.
 - Eventos públicos ou restritos, inscrição e aprovação de convidados/simpatizantes.
-- Agenda compartilhada de eventos e locações, controle de conflito e cobrança automática da reserva.
+- Catálogo com piscina, academia, churrasqueira, quadra de esportes, campo de futebol e salão de festas.
+- Agendamento de churrasqueira, quadra, campo e salão por data e horário, com controle de conflitos e cobrança quando houver taxa.
 - Mensalidades por competência, inadimplência e baixa manual auditada.
 - Solicitações e reclamações com histórico e acompanhamento pelo associado.
 - Persistência local em JSON ou PostgreSQL, com isolamento por clube nas autorizações.
@@ -56,7 +57,7 @@ dotnet run --project tests/Clube360.Domain.Checks
 dotnet run --project tests/Clube360.Access.Checks
 ```
 
-São 59 verificações de regras e 64 de acesso/fluxo HTTP. Os testes usam dados e credenciais temporários. O Android compila separadamente e ainda precisa de validação local desta atualização.
+São 68 verificações de regras e 67 de acesso/fluxo HTTP. Os testes usam dados e credenciais temporários. O Android compila separadamente e ainda precisa de validação local desta atualização.
 
 ## Documentação
 

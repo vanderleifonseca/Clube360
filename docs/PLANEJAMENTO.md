@@ -45,11 +45,20 @@ Eventos públicos aceitam inscrição de visitante com nome, CPF e e-mail, por p
 
 Nesta entrega há preço único por evento. Os descontos por vínculo e por clube, pedidos no escopo anterior, continuam no planejamento e ainda não estão implementados.
 
-## Espaços, locações e cobranças
+## Áreas sociais e agendamentos
 
-A direção cadastra espaços e define a taxa de aluguel. O associado consulta a agenda, escolhe espaço, data e hora inicial/final e finalidade. A API confirma disponibilidade novamente ao gravar: sobreposições entre reservas e eventos do mesmo espaço são recusadas, inclusive tentativas concorrentes. Um período que termina exatamente quando outro começa é permitido.
+O Clube360 atende clubes sociais. A direção cadastra cada área pelo nome e pelo tipo no menu **Áreas sociais**.
 
-A reserva e sua cobrança são gravadas juntas. O valor é o cadastrado no espaço no momento da contratação. Dependentes, provisoriamente autorizados a reservar, lançam o débito no titular. Convidado e simpatizante não podem reservar nesta etapa.
+| Área | Acesso no sistema |
+| --- | --- |
+| Piscina e academia | Consulta no catálogo |
+| Churrasqueira, quadra de esportes, campo de futebol e salão de festas | Reserva por data e horário |
+
+O associado consulta a agenda, escolhe a área, data e hora de início e término e informa a finalidade. A API valida o tipo da área e a disponibilidade ao gravar. Reservas e eventos que ocupem a mesma área em períodos sobrepostos impedem uma nova reserva, inclusive em tentativas concorrentes. Um período que termina exatamente quando outro começa é permitido.
+
+O catálogo da instalação de demonstração inclui os seis tipos. Em clubes já cadastrados, inclua as áreas existentes pelo painel. O antigo “Salão social” é identificado como salão de festas e mantém a agenda. Áreas antigas com outros nomes podem ser classificadas pelo administrador.
+
+Quando houver taxa, a reserva e sua cobrança são gravadas juntas, com o valor cadastrado no momento da reserva. Dependentes, provisoriamente autorizados a reservar, lançam o débito no titular. Convidado e simpatizante não podem reservar nesta etapa.
 
 Cancelamento permitido até cinco dias antes, interpretados como **120 horas exatas**, inclusive o limite. Depois disso é recusado. Se a cobrança está aberta, é cancelada; se já foi paga, fica com reembolso pendente para tratamento pelo financeiro. Não há devolução bancária automática.
 

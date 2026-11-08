@@ -18,7 +18,7 @@ public sealed class AssociadoRequest {
     public Guid? TitularId { get; set; } public string? Parentesco { get; set; }
     public decimal? ValorMensal { get; set; } public bool Isento { get; set; } public bool Ativo { get; set; } = true;
 }
-public sealed record EspacoRequest(string Nome, decimal TaxaAluguel);
+public sealed record EspacoRequest(string Nome, decimal TaxaAluguel, string? Tipo = null);
 public sealed record EventoRequest(string Nome, string Descricao, DateTimeOffset Inicio, DateTimeOffset Fim,
     string Publico, decimal ValorInscricao, Guid? EspacoId = null);
 public sealed record ReservaRequest(Guid EspacoId, DateTimeOffset Inicio, DateTimeOffset Fim, string Finalidade);

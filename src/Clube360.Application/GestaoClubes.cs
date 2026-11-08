@@ -59,16 +59,40 @@ public sealed class GestaoClubes(IRepositorioClubes repo, TimeProvider relogio)
                 throw new ArgumentException("Dependente exige titular associado ou fundador.");
         }
     }
-    public Espaco CriarEspaco(Guid clube, EspacoRequest r) => repo.Alterar(s=>{
-        ExigirClube(s,clube);
-        if (string.IsNullOrWhiteSpace(r.Nome)||r.TaxaAluguel<0) throw new ArgumentException("Nome e taxa do espaço inválidos.");
-        var e=new Espaco(Guid.NewGuid(),clube,(r.Nome??"").Trim(),r.TaxaAluguel);s.Espacos.Add(e);return e;
+    public Espaco CriarEspaco(Guid clube, EspacoRequest r) => repo.Alterar(s =>
+    {
+        ExigirClube(s, clube);
+        var e = PrepararEspaco(new Espaco(Guid.NewGuid(), clube, r.Nome, r.TaxaAluguel), r);
+        s.Espacos.Add(e);
+        return e;
     });
-    public Espaco AtualizarEspaco(Guid clube,Guid id,EspacoRequest r) => repo.Alterar(s=>{
-        var e=s.Espacos.SingleOrDefault(x=>x.ClubeId==clube&&x.Id==id)??throw new ArgumentException("Espaço inexistente.");
-        if(string.IsNullOrWhiteSpace(r.Nome)||r.TaxaAluguel<0)throw new ArgumentException("Nome ou taxa inválidos.");
-        var novo=e with {Nome=(r.Nome??"").Trim(),TaxaAluguel=r.TaxaAluguel};s.Espacos[s.Espacos.IndexOf(e)]=novo;return novo;
+
+    public Espaco AtualizarEspaco(Guid clube, Guid id, EspacoRequest r) => repo.Alterar(s =>
+    {
+        var e = s.Espacos.SingleOrDefault(x => x.ClubeId == clube && x.Id == id)
+            ?? throw new ArgumentException("Área social inexistente.");
+        var nova = PrepararEspaco(e, r);
+        s.Espacos[s.Espacos.IndexOf(e)] = nova;
+        return nova;
     });
+
+    private static Espaco PrepararEspaco(Espaco area, EspacoRequest r)
+    {
+        if (string.IsNullOrWhiteSpace(r.Nome) || r.TaxaAluguel < 0)
+            throw new ArgumentException("Informe o nome da área e uma taxa válida.");
+
+        var tipo = r.Tipo?.Trim() ?? TiposAreaSocial.Identificar(area.Tipo, area.Nome);
+        if (tipo is null || !TiposAreaSocial.Todos.Contains(tipo))
+            throw new ArgumentException("Selecione um dos seis tipos de área social.");
+
+        return area with
+        {
+            Nome = r.Nome.Trim(),
+            Tipo = tipo,
+            TaxaAluguel = TiposAreaSocial.Reservavel(tipo) ? r.TaxaAluguel : 0
+        };
+    }
+
     public Evento CriarEvento(Guid clube, EventoRequest r) => repo.Alterar(s=>{
         ExigirClube(s,clube); Periodos.Validar(r.Inicio,r.Fim,Agora);
         if (string.IsNullOrWhiteSpace(r.Nome)||r.ValorInscricao<0 ||
@@ -88,6 +112,8 @@ public sealed class GestaoClubes(IRepositorioClubes repo, TimeProvider relogio)
         if (a.Categoria is Categoria.Convidado or Categoria.Simpatizante) throw new ArgumentException("Locação disponível aos associados, fundadores e dependentes.");
         if (string.IsNullOrWhiteSpace(r.Finalidade)) throw new ArgumentException("Informe a finalidade.");
         var espaco=ExigirLivre(s,clube,r.EspacoId,r.Inicio,r.Fim);
+        if (!TiposAreaSocial.Reservavel(TiposAreaSocial.Identificar(espaco.Tipo, espaco.Nome)))
+            throw new ArgumentException("Esta área social não está disponível para reservas.");
         var titular=a.TitularId??a.Id;
         var reserva=new Reserva(Guid.NewGuid(),clube,espaco.Id,a.Id,titular,r.Inicio.ToUniversalTime(),r.Fim.ToUniversalTime(),(r.Finalidade??"").Trim(),espaco.TaxaAluguel);
         s.Reservas.Add(reserva);

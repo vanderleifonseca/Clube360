@@ -40,6 +40,12 @@ public partial class MainPage:ContentPage
     private async void AoSelecionarClube(object? sender,EventArgs e){if(!_ocupado&&_client is not null&&ClubesPicker.SelectedItem is ClubeDto)await Executar(MostrarConta);}
     private async void AbrirConta(object? s,EventArgs e){if(_client is not null)await Executar(MostrarConta);}
     private async void AbrirFinanceiro(object? s,EventArgs e){if(_client is not null)await Executar(MostrarFinanceiro);}
+    private async void AbrirAreas(object? sender, EventArgs e)
+    {
+        if (_client is not null)
+            await Executar(MostrarAreas);
+    }
+
     private async void AbrirAgenda(object? s,EventArgs e){if(_client is not null)await Executar(MostrarAgenda);}
     private async void AbrirEventos(object? s,EventArgs e){if(_client is not null)await Executar(MostrarEventos);}
     private async void AbrirSolicitacoes(object? s,EventArgs e){if(_client is not null)await Executar(MostrarSolicitacoes);}
@@ -75,11 +81,49 @@ public partial class MainPage:ContentPage
     private (DatePicker,TimePicker) DataHora(string nome,int hora){
         Texto(nome);var d=new DatePicker{Date=DateTime.Today.AddDays(7)};var t=new TimePicker{Time=TimeSpan.FromHours(hora)};Conteudo.Children.Add(d);Conteudo.Children.Add(t);return(d,t);
     }
+    private async Task MostrarAreas()
+    {
+        var areas = await Get<List<EspacoDto>>(Base + "/espacos");
+        Limpar("Áreas sociais");
+        if (areas.Count == 0)
+            Texto("Nenhuma área social cadastrada.");
+
+        foreach (var area in areas.OrderBy(a => a.TipoEfetivo).ThenBy(a => a.Nome))
+        {
+            Texto(area.Nome, true);
+            Texto((area.TipoEfetivo ?? "Sem classificação") +
+                (area.Reservavel ? " · Com agendamento" : " · Sem agendamento"));
+            if (area.Reservavel && area.TaxaAluguel > 0)
+                Texto("Taxa de reserva " + Dinheiro(area.TaxaAluguel));
+        }
+
+        if (areas.Any(a => a.Reservavel))
+            Botao("Abrir agenda", MostrarAgenda);
+    }
+
     private async Task MostrarAgenda(){
         var agenda=await Get<List<AgendaDto>>(Base+"/agenda");var espacos=await Get<List<EspacoDto>>(Base+"/espacos");var reservas=await Get<List<ReservaDto>>(Base+"/reservas");
         Limpar("Agenda de locações e eventos");
         foreach(var a in agenda)Texto(a.Tipo+" · "+a.Nome+" · "+Hora(a.Inicio)+" até "+Hora(a.Fim));
-        Texto("Nova reserva",true);
+        var reservaveis = espacos.Where(e => e.Reservavel).ToList();
+        if (reservaveis.Count > 0)
+            MostrarFormularioReserva(reservaveis);
+        else
+            Texto("O clube ainda não tem áreas para agendamento.");
+
+        Texto("Cancelamento até 120 horas antes do início. Valores pagos exigem análise de reembolso.");
+        Texto("Minhas reservas",true);
+        foreach(var r in reservas){Texto(Hora(r.Inicio)+" · "+r.Finalidade+" · "+r.Situacao);
+            if(r.Situacao=="Confirmada")Botao("Cancelar esta reserva",async()=>{
+                if(!await DisplayAlertAsync("Cancelar reserva","Deseja solicitar o cancelamento?","Sim","Não"))return;
+                await Post(Base+$"/reservas/{r.Id}/cancelar");await MostrarAgenda();Mensagem.Text="Reserva cancelada.";
+            });
+        }
+    }
+
+    private void MostrarFormularioReserva(List<EspacoDto> espacos)
+    {
+        Texto("Nova reserva", true);
         var p=new Picker{Title="Espaço",ItemDisplayBinding=new Binding(nameof(EspacoDto.Nome)),ItemsSource=espacos};Conteudo.Children.Add(p);if(espacos.Count>0)p.SelectedIndex=0;
         var finalidade=Campo("Finalidade: festa, churrasco, feijoada...");
         var(di,hi)=DataHora("Início",10);var(df,hf)=DataHora("Término",14);
@@ -90,20 +134,23 @@ public partial class MainPage:ContentPage
             var ocupado=atual.Any(a=>a.EspacoId==e.Id&&inicio<a.Fim&&a.Inicio<fim);
             await DisplayAlertAsync("Disponibilidade",ocupado?"Período ocupado.":"Sem conflito na agenda consultada. A confirmação final ocorre no servidor.","Fechar");
         });
-        Botao("Confirmar locação e taxa",async()=>{
-            if(p.SelectedItem is not EspacoDto e)throw new ArgumentException("Selecione o espaço.");
-            if(!await DisplayAlertAsync("Confirmar reserva","Taxa de "+Dinheiro(e.TaxaAluguel)+" será lançada na conta do titular.","Confirmar","Voltar"))return;
-            await Post(Base+"/reservas",new ReservaRequest(e.Id,Instante(di,hi),Instante(df,hf),finalidade.Text??""));await MostrarAgenda();Mensagem.Text="Reserva e cobrança registradas.";
+        Botao("Confirmar reserva", async () =>
+        {
+            if (p.SelectedItem is not EspacoDto area)
+                throw new ArgumentException("Selecione a área.");
+
+            var mensagem = area.TaxaAluguel > 0
+                ? "Taxa de " + Dinheiro(area.TaxaAluguel) + " será lançada na conta do titular."
+                : "Reserva sem taxa.";
+            if (!await DisplayAlertAsync("Confirmar reserva", mensagem, "Confirmar", "Voltar"))
+                return;
+
+            await Post(Base + "/reservas", new ReservaRequest(area.Id, Instante(di, hi), Instante(df, hf), finalidade.Text ?? ""));
+            await MostrarAgenda();
+            Mensagem.Text = "Reserva confirmada.";
         });
-        Texto("Cancelamento até 120 horas antes do início. Valores pagos exigem análise de reembolso.");
-        Texto("Minhas reservas",true);
-        foreach(var r in reservas){Texto(Hora(r.Inicio)+" · "+r.Finalidade+" · "+r.Situacao);
-            if(r.Situacao=="Confirmada")Botao("Cancelar esta reserva",async()=>{
-                if(!await DisplayAlertAsync("Cancelar reserva","Deseja solicitar o cancelamento?","Sim","Não"))return;
-                await Post(Base+$"/reservas/{r.Id}/cancelar");await MostrarAgenda();Mensagem.Text="Reserva cancelada.";
-            });
-        }
     }
+
     private async Task MostrarEventos(){
         var eventos=await Get<List<EventoDto>>(Base+"/eventos");var convites=await Get<List<ConviteDto>>(Base+"/convites");var me=await Get<MeuCadastroDto>(Base+"/meu-cadastro");
         Limpar("Eventos");
