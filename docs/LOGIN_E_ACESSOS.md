@@ -22,13 +22,23 @@ dotnet run --project tools/Clube360.Setup
 
 O configurador pede e-mail e senha dos três perfis iniciais e grava somente hashes em user-secrets, fora do Git. A senha mínima de quatro caracteres é mantida para o desenvolvimento local. Não publique senhas, hashes ou arquivos App_Data.
 
+## Redefinir a senha do administrador inicial
+
+Na raiz do projeto, execute em um terminal interativo:
+
+```powershell
+dotnet run --project tools/Clube360.Setup -- --redefinir-administrador
+```
+
+O configurador mostra o e-mail existente e pede a nova senha duas vezes. Ele altera somente o hash da conta inicial Administrador em user-secrets. Reinicie a API e entre novamente com esse e-mail e a senha nova.
+
 ## Liberar outros usuários
 
 Entre com SuperAdmin, selecione o clube e abra Acessos para cadastrar seu presidente. O presidente pode liberar administrador e tesoureiro do próprio clube e acessos Socio vinculados a pessoas cadastradas. Administrador libera acesso Socio; não cria presidentes nem super administradores. Categoria de associado não é perfil de usuário.
 
 Tesoureiro usa o painel web financeiro. Associado e dependente usam o app ou área própria no navegador. Cada conta criada é um usuário distinto; não compartilhe credenciais de função.
 
-Inativar o cadastro associativo bloqueia a conta Socio nas próximas requisições. Alterar senha, recuperar senha e desativar diretamente contas administrativas ainda são pendências. Tokens vencem em até 20 minutos; sair remove a sessão do cliente.
+Inativar o cadastro associativo bloqueia a conta Socio nas próximas requisições. Contas administrativas criadas no painel ainda precisam de um fluxo de alteração de senha, recuperação e desativação. Tokens vencem em até 20 minutos; sair remove a sessão do cliente.
 
 ## Conectar o celular
 
