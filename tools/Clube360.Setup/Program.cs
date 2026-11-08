@@ -7,9 +7,10 @@ using Microsoft.Extensions.Configuration;
 
 const string projetoApi = "src/Clube360.Api/Clube360.Api.csproj";
 var redefinirAdministrador = args is ["--redefinir-administrador"];
-if (args.Length > 0 && !redefinirAdministrador)
+var importarAssociados = args is ["--importar-associados", _];
+if (args.Length > 0 && !redefinirAdministrador && !importarAssociados)
 {
-    Console.Error.WriteLine("Use --redefinir-administrador para alterar a senha do administrador inicial.");
+    Console.Error.WriteLine("Opções: --redefinir-administrador ou --importar-associados <arquivo.csv>.");
     return 1;
 }
 if (Console.IsInputRedirected || !File.Exists(projetoApi))
@@ -17,6 +18,9 @@ if (Console.IsInputRedirected || !File.Exists(projetoApi))
     Console.Error.WriteLine("Execute em um terminal interativo, na raiz do Clube360.");
     return 1;
 }
+
+if (importarAssociados)
+    return await ImportacaoAssociados.Executar(args[1], LerSenha);
 
 var valores = new Dictionary<string, string>();
 if (redefinirAdministrador)

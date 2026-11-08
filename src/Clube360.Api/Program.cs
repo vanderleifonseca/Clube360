@@ -46,6 +46,7 @@ else
 }
 builder.Services.AddSingleton<ConsultaDemonstracao>();
 builder.Services.AddSingleton<GestaoClubes>();
+builder.Services.AddSingleton<PortariaClube>();
 builder.Services.AddSingleton<ContasLocais>();
 builder.Services.AddAuthentication(BearerTokenDefaults.AuthenticationScheme).AddBearerToken(o=>o.BearerTokenExpiration=TimeSpan.FromMinutes(20));
 builder.Services.AddAuthorization();
@@ -89,7 +90,9 @@ if(app.Environment.IsDevelopment()) {
         return new SessaoDto(c.Nome,c.Perfil,clubes);
     });
     api.MapGet("/clubes",(HttpContext ctx,ContasLocais contas,GestaoClubes g)=>{
-        var c=Atual(ctx,contas);return g.Ler(s=>s.Clubes.Where(x=>c.Perfil=="SuperAdmin"||x.Id==c.ClubeId).ToArray());
+        var c=Atual(ctx,contas);
+        if (c.Perfil == "Porteiro") throw new UnauthorizedAccessException();
+        return g.Ler(s=>s.Clubes.Where(x=>c.Perfil=="SuperAdmin"||x.Id==c.ClubeId).ToArray());
     });
     api.MapPost("/clubes",(ClubeRequest r,HttpContext ctx,ContasLocais contas,GestaoClubes g)=>{
         if(Atual(ctx,contas).Perfil!="SuperAdmin")throw new UnauthorizedAccessException();return g.SalvarClube(null,r);
@@ -125,6 +128,26 @@ if(app.Environment.IsDevelopment()) {
         g.Ler(s=>GestaoClubes.ExigirClube(s,clube));
         if(r.AssociadoId is { } id)g.Ler(s=>GestaoClubes.Pessoa(s,clube,id));
         return contas.Criar(clube,r,c);
+    });
+    var portaria = api.MapGroup("/clubes/{clube:guid}/portaria");
+    portaria.MapGet("", (Guid clube, DateOnly? dia, HttpContext ctx, ContasLocais contas, PortariaClube controle) =>
+    {
+        ExigirPortaria(Atual(ctx, contas), clube);
+        return controle.Consultar(clube, dia);
+    });
+    portaria.MapPut("/visitas/{visita:guid}", (Guid clube, Guid visita, EntradaPortariaRequest r,
+        HttpContext ctx, ContasLocais contas, PortariaClube controle) =>
+    {
+        var c = Atual(ctx, contas);
+        ExigirPortaria(c, clube);
+        return controle.RegistrarEntrada(clube, visita, r.AssociadoId, c.Id, c.Nome);
+    });
+    portaria.MapPost("/visitas/{visita:guid}/saida", (Guid clube, Guid visita,
+        HttpContext ctx, ContasLocais contas, PortariaClube controle) =>
+    {
+        var c = Atual(ctx, contas);
+        ExigirPortaria(c, clube);
+        return controle.RegistrarSaida(clube, visita, c.Id, c.Nome);
     });
     api.MapGet("/clubes/{clube:guid}/espacos",(Guid clube,HttpContext ctx,ContasLocais contas,GestaoClubes g)=>{
         ExigirClube(Atual(ctx,contas),clube);return g.Ler(s=>s.Espacos.Where(x=>x.ClubeId==clube&&x.Ativo).ToArray());
@@ -199,7 +222,12 @@ static ContaLocal Atual(HttpContext ctx,ContasLocais contas)=>contas.Atual(ctx.U
 static bool Gestor(ContaLocal c,Guid clube)=>c.Perfil=="SuperAdmin"||(c.ClubeId==clube&&c.Perfil is "Presidente" or "Administrador");
 static void ExigirGestor(ContaLocal c,Guid clube){if(!Gestor(c,clube))throw new UnauthorizedAccessException();}
 static void ExigirFinanceiro(ContaLocal c,Guid clube){if(!Gestor(c,clube)&&!(c.ClubeId==clube&&c.Perfil=="Tesoureiro"))throw new UnauthorizedAccessException();}
-static void ExigirClube(ContaLocal c,Guid clube){if(c.Perfil!="SuperAdmin"&&c.ClubeId!=clube)throw new UnauthorizedAccessException();}
+static void ExigirPortaria(ContaLocal c, Guid clube)
+{
+    if (!Gestor(c, clube) && !(c.Perfil == "Porteiro" && c.ClubeId == clube))
+        throw new UnauthorizedAccessException();
+}
+static void ExigirClube(ContaLocal c,Guid clube){if(c.Perfil=="Porteiro"||(c.Perfil!="SuperAdmin"&&c.ClubeId!=clube))throw new UnauthorizedAccessException();}
 static Guid ExigirSocio(ContaLocal c,Guid clube){if(c.Perfil!="Socio"||c.ClubeId!=clube||c.AssociadoId is null)throw new UnauthorizedAccessException();return c.AssociadoId.Value;}
 static FinanceiroDto Financeiro(GestaoClubes g,Guid clube,Guid? socio)=>g.Ler(s=>{
     Associado? a=socio is { } id?GestaoClubes.Pessoa(s,clube,id):null;

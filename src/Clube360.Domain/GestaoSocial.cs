@@ -51,4 +51,5 @@ public sealed class EstadoClubes
     public List<Convite> Convites { get; set; } = [];
     public List<Inscricao> Inscricoes { get; set; } = [];
     public List<Visitante> Visitantes { get; set; } = [];
+    public List<VisitaClube> Visitas { get; set; } = [];
 }

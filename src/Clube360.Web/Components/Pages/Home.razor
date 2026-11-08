@@ -35,6 +35,10 @@ else {
 <label>Mensalidade padrão<input type="number" min="0" step="0.01" @bind="_novoClube.ValorMensalPadrao" /></label>
 </div><button disabled="@_ocupado" @onclick="SalvarClube">Salvar clube</button>
 }
+@if (_aba == "Portaria" && (Gestor || Porteiro) && _clube != Guid.Empty)
+{
+    <PainelPortaria @key="_clube" Clube="_clube" />
+}
 @if(_aba=="Associados"&&Gestor){
 <h2>Associados e dependentes</h2>
 <div class="tabela"><table><thead><tr><th>Nome</th><th>CPF</th><th>Categoria</th><th>Voto</th><th>Ação</th></tr></thead><tbody>
@@ -148,7 +152,7 @@ else {
 @if(Gestor&&s.Status is "Aberta" or "EmAnalise"){<button @onclick='()=>Andamento(s.Id,"EmAnalise")' disabled="@_ocupado">Em análise</button><button @onclick='()=>Andamento(s.Id,"Concluida")' disabled="@_ocupado">Concluir</button>}</article>}
 }
 @if(_aba=="Acessos"&&Gestor){
-<h2>Contas e permissões do clube</h2><p>O super admin cria presidentes. O presidente pode liberar administradores e tesoureiros para o próprio clube.</p>
+<h2>Contas e permissões do clube</h2><p>O super admin cria presidentes. O presidente pode liberar administradores e tesoureiros. A administração pode criar contas de porteiro e de associado para o clube.</p>
 @foreach(var u in _usuarios){<p>@u.Nome · @u.Email · @u.Perfil</p>}
 <div class="form-grid"><label>Nome<input @bind="_nomeUsuario" /></label><label>E-mail<input type="email" @bind="_emailUsuario" /></label><label>Senha inicial de teste<input type="password" @bind="_senhaUsuario" maxlength="256" /></label>
 <label>Perfil<select @bind="_perfilUsuario">@foreach(var p in PerfisPermitidos){<option>@p</option>}</select></label>

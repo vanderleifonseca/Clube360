@@ -191,10 +191,93 @@ try
     var boleto=await socioNovo.GetFromJsonAsync<BoletoDto>($"/api/v1/clubes/{lago}/financeiro/{cobrancas!.Cobrancas.First().Id}/boleto");
     Verificar(!boleto!.Disponivel&&boleto.Url is null,"Boleto fictício emitido.");
 
+    var rotaPortaria = $"/api/v1/clubes/{lago}/portaria";
+    var rotaOutroClube = $"/api/v1/clubes/{rio}/portaria";
+    await Codigo(anonimo, rotaPortaria, HttpStatusCode.Unauthorized);
+    await Codigo(socioNovo, rotaPortaria, HttpStatusCode.Forbidden);
+    await Codigo(tesoureiro, rotaPortaria, HttpStatusCode.Forbidden);
+    await Codigo(presidente, rotaOutroClube, HttpStatusCode.Forbidden);
+    using (var resposta = await presidente.PostAsJsonAsync($"/api/v1/clubes/{lago}/usuarios",
+        new NovoAcessoRequest("Porteiro de teste", "porteiro@clube360.test", senha, "Porteiro")))
+        Verificar(resposta.IsSuccessStatusCode, "Presidente não criou conta de portaria.");
+
+    var inicial = (await presidente.GetFromJsonAsync<PortariaDto>(rotaPortaria))!;
+    Verificar(inicial.Elegiveis.Any(p => p.Id == dep.Id && p.FinalCpf == "4725") &&
+        inicial.Presentes.Count == 0 && inicial.Historico.Count == 0, "Consulta inicial da portaria incorreta.");
+
+    var visita = Guid.NewGuid();
+    var entrada = new EntradaPortariaRequest(dep.Id);
+    var tentativas = await Task.WhenAll(
+        presidente.PutAsJsonAsync($"{rotaPortaria}/visitas/{visita}", entrada),
+        presidente.PutAsJsonAsync($"{rotaPortaria}/visitas/{Guid.NewGuid()}", entrada));
+    Guid visitaAberta;
+    using (tentativas[0])
+    using (tentativas[1])
+    {
+        Verificar(tentativas.Count(r => r.IsSuccessStatusCode) == 1 &&
+            tentativas.Count(r => r.StatusCode == HttpStatusCode.BadRequest) == 1,
+            "Entradas simultâneas criaram duplicidade.");
+        visitaAberta = (await tentativas.Single(r => r.IsSuccessStatusCode).Content.ReadFromJsonAsync<VisitaPortariaDto>())!.Id;
+    }
+
+    using (var resposta = await presidente.PutAsJsonAsync($"{rotaPortaria}/visitas/{visitaAberta}", entrada))
+        Verificar(resposta.IsSuccessStatusCode, "Repetição da mesma entrada deveria ser idempotente.");
+    using (var resposta = await super.PutAsJsonAsync($"{rotaOutroClube}/visitas/{Guid.NewGuid()}", entrada))
+        Verificar(resposta.StatusCode == HttpStatusCode.BadRequest, "Registrou pessoa de outro clube.");
+    using (var resposta = await socioNovo.PostAsync($"{rotaPortaria}/visitas/{visitaAberta}/saida", null))
+        Verificar(resposta.StatusCode == HttpStatusCode.Forbidden, "Sócio registrou a própria saída.");
+
     depReq.Ativo=false;
     using(var r=await presidente.PutAsJsonAsync($"/api/v1/clubes/{lago}/associados/{dep.Id}",depReq))
         Verificar(r.IsSuccessStatusCode,"Edição do dependente falhou.");
     await Codigo(dependente,$"/api/v1/clubes/{lago}/meu-cadastro",HttpStatusCode.Forbidden);
+
+    foreach (var proc in logs)
+    {
+        if (!proc.HasExited) { proc.Kill(entireProcessTree: true); proc.WaitForExit(); }
+        proc.Dispose();
+    }
+    logs.Clear();
+    apiUrl = $"http://127.0.0.1:{Porta()}";
+    Iniciar("Clube360.Api", apiUrl);
+    Iniciar("Clube360.Web", webUrl);
+    await Aguardar(apiUrl + "/api/v1/status");
+    await Aguardar(webUrl + "/entrar");
+    using var porteiro = await Entrar("Porteiro");
+    var presentes = (await porteiro.GetFromJsonAsync<PortariaDto>(rotaPortaria))!;
+    Verificar(presentes.Presentes.Single().Id == visitaAberta &&
+        presentes.Historico.Single().EntradaPor == "Presidente foz 2",
+        "Entrada ou autoria perdida após reiniciar a API.");
+    await Codigo(porteiro, rotaOutroClube, HttpStatusCode.Forbidden);
+    await Codigo(porteiro, "/api/v1/clubes", HttpStatusCode.Forbidden);
+    await Codigo(porteiro, $"/api/v1/clubes/{lago}/associados", HttpStatusCode.Forbidden);
+    await Codigo(porteiro, $"/api/v1/clubes/{lago}/financeiro", HttpStatusCode.Forbidden);
+    await Codigo(porteiro, $"/api/v1/clubes/{lago}/reservas", HttpStatusCode.Forbidden);
+
+    using var saida = await porteiro.PostAsync($"{rotaPortaria}/visitas/{visitaAberta}/saida", null);
+    Verificar(saida.IsSuccessStatusCode, "Porteiro não registrou a saída de pessoa inativada.");
+    var visitaFechada = (await saida.Content.ReadFromJsonAsync<VisitaPortariaDto>())!;
+    Verificar(visitaFechada.SaidaEm is not null && visitaFechada.SaidaPor == "Porteiro de teste",
+        "Saída sem horário ou autoria.");
+    using var repetirSaida = await porteiro.PostAsync($"{rotaPortaria}/visitas/{visitaAberta}/saida", null);
+    Verificar(repetirSaida.IsSuccessStatusCode &&
+        (await repetirSaida.Content.ReadFromJsonAsync<VisitaPortariaDto>()) == visitaFechada, "Saída repetida alterou o registro.");
+    using (var resposta = await porteiro.PutAsJsonAsync($"{rotaPortaria}/visitas/{Guid.NewGuid()}", entrada))
+        Verificar(resposta.StatusCode == HttpStatusCode.BadRequest, "Portaria aceitou nova entrada de pessoa inativa.");
+    var historico = (await porteiro.GetFromJsonAsync<PortariaDto>($"{rotaPortaria}?dia={presentes.Dia:yyyy-MM-dd}"))!;
+    Verificar(historico.Presentes.Count == 0 && historico.Historico.Single() == visitaFechada, "Histórico diário incorreto.");
+
+    using var webPortaria = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { BaseAddress = new Uri(webUrl) };
+    var formularioPortaria = await webPortaria.GetStringAsync("/entrar");
+    var csrfPortaria = WebUtility.HtmlDecode(Regex.Match(formularioPortaria, "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value);
+    using var loginPortaria = await webPortaria.PostAsync("/autenticacao/entrar", new FormUrlEncodedContent(
+        new Dictionary<string, string> { ["email"] = "porteiro@clube360.test", ["senha"] = senha, ["__RequestVerificationToken"] = csrfPortaria }));
+    Verificar(loginPortaria.StatusCode == HttpStatusCode.Redirect && loginPortaria.Headers.Location?.ToString() == "/",
+        "Login web de portaria falhou.");
+    var painelPortaria = WebUtility.HtmlDecode(await webPortaria.GetStringAsync("/"));
+    Verificar(painelPortaria.Contains("Portaria do clube") && painelPortaria.Contains("Histórico de entradas e saídas") &&
+        painelPortaria.Contains(dep.Nome) && !painelPortaria.Contains("Financeiro"),
+        "Painel de portaria não mostrou o histórico ou expôs módulos indevidos.");
 
     Console.WriteLine($"{checks} verificações de acesso e fluxo HTTP concluídas com sucesso.");
 }

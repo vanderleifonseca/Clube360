@@ -40,7 +40,8 @@ Não há senha padrão; a senha mínima de quatro caracteres permanece apenas ne
 ## O que esta etapa oferece
 
 - Cadastro e edição de clubes, associados e dependentes; categorias e direito a voto.
-- Super administrador, presidente, administrador do clube, tesoureiro e associado.
+- Super administrador, presidente, administrador do clube, tesoureiro, porteiro e associado.
+- Portaria web para registrar entradas e saídas de associados, fundadores e dependentes ativos, com histórico diário e identificação dos responsáveis.
 - Eventos públicos ou restritos, inscrição e aprovação de convidados/simpatizantes.
 - Catálogo com piscina, academia, churrasqueira, quadra de esportes, campo de futebol e salão de festas.
 - Agendamento de churrasqueira, quadra, campo e salão por data e horário, com controle de conflitos e cobrança quando houver taxa.
@@ -50,6 +51,18 @@ Não há senha padrão; a senha mínima de quatro caracteres permanece apenas ne
 
 **Boleto bancário não está integrado.** A opção informa essa pendência e não gera documentos ou códigos bancários fictícios. JSON é o padrão de desenvolvimento. A API também pode usar PostgreSQL, com importação inicial dos arquivos locais. Os endpoints de negócio só ficam habilitados em Development.
 
+## Portaria e importação de associados
+
+No painel web, a administração do clube pode abrir **Portaria** ou criar uma conta com o perfil **Porteiro** em **Acessos**. O porteiro só opera no clube da sua conta. A consulta lista entradas em aberto e permite selecionar o dia do histórico no fuso de Brasília. A elegibilidade usa a situação do cadastro e o vínculo do dependente. Débitos financeiros são tratados no módulo Financeiro.
+
+Com a API local rodando na porta 5187, uma conta de gestão pode importar um CSV de associados e criar seus acessos. Use a conta de super administrador para um lote com vários clubes. Guarde o CSV em uma pasta fora do projeto.
+
+```powershell
+dotnet run --project tools/Clube360.Setup -- --importar-associados "C:\caminho\associados.csv"
+```
+
+O arquivo UTF-8 usa o cabeçalho `Clube;Nome;Cpf;DataNascimento;Email` e datas no formato `AAAA-MM-DD`. O comando pede as credenciais da gestão no terminal e grava as senhas iniciais geradas em um arquivo `.acessos.csv` ao lado do lote. Guarde esse arquivo em local privado. Se a execução for interrompida, execute novamente com o mesmo CSV e mantenha o arquivo de acessos junto dele.
+
 ## Verificação
 
 ```powershell
@@ -57,7 +70,7 @@ dotnet run --project tests/Clube360.Domain.Checks
 dotnet run --project tests/Clube360.Access.Checks
 ```
 
-São 68 verificações de regras e 67 de acesso/fluxo HTTP. Os testes usam dados e credenciais temporários. O Android compila separadamente e ainda precisa de validação local desta atualização.
+São 68 verificações de regras e 91 de acesso/fluxo HTTP. Os testes usam dados e credenciais temporários. O Android compila separadamente e ainda precisa de validação local desta atualização.
 
 ## Documentação
 

@@ -114,9 +114,10 @@ public sealed class ContasLocais
     {
         var permitidos = autor.Perfil switch
         {
-            "SuperAdmin" => new[] { "Presidente", "Administrador", "Tesoureiro", "Socio" },
-            "Presidente" => new[] { "Administrador", "Tesoureiro", "Socio" },
-            _ => new[] { "Socio" }
+            "SuperAdmin" => new[] { "Presidente", "Administrador", "Tesoureiro", "Porteiro", "Socio" },
+            "Presidente" => new[] { "Administrador", "Tesoureiro", "Porteiro", "Socio" },
+            "Administrador" => new[] { "Porteiro", "Socio" },
+            _ => Array.Empty<string>()
         };
         if (!permitidos.Contains(r.Perfil))
             throw new UnauthorizedAccessException();
@@ -125,6 +126,8 @@ public sealed class ContasLocais
             throw new ArgumentException("Informe nome, e-mail e senha de 4 a 256 caracteres.");
         if (r.Perfil == "Socio" && r.AssociadoId is null)
             throw new ArgumentException("Vincule a conta ao associado ou dependente.");
+        if (r.Perfil == "Porteiro" && r.AssociadoId is not null)
+            throw new ArgumentException("O perfil Porteiro não exige vínculo com um associado.");
 
         lock (_gate)
         {
