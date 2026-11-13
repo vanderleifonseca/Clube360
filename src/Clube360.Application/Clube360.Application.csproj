@@ -1,1 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><ProjectReference Include="../Clube360.Domain/Clube360.Domain.csproj" /><ProjectReference Include="../Clube360.Contracts/Clube360.Contracts.csproj" /></ItemGroup></Project>

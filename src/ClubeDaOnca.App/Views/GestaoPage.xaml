@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClubeDaOnca.App.Views.GestaoPage"
+             Title="Gestão">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12" MaximumWidthRequest="640">
+            <Label Text="Área de gestão" Style="{StaticResource Headline}" HorizontalOptions="Start" />
+
+            <Border x:Name="CartaoSocios" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirSocios" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="👥  Sócios e dependentes" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Cadastrar, editar, suspender títulos e renovar QR Codes." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoPortaria" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirPortaria" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🚪  Portaria" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Ler a carteirinha do sócio e liberar ou bloquear a entrada." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoReservas" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirReservas" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="📅  Reservas" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Aprovar, recusar e cancelar reservas dos sócios." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoEspacos" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirEspacos" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🏟️  Espaços" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Quadras, churrasqueiras e salões: horários, taxas e regras de reserva." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoEventos" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirEventos" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🎉  Eventos" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Cadastrar eventos, checar a agenda dos locais, ambientes com vagas e reservas." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoComunicados" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirComunicados" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="📣  Comunicados" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Enviar avisos aos associados pelo app, e-mail e WhatsApp." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoFinanceiro" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirFinanceiro" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="💰  Financeiro" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Mensalidades, baixas, inadimplentes e valores por categoria." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoAssociacao" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirAssociacao" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🏛️  Associação" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Dados, endereço, presidente (mandato de 2 anos) e diretoria." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="CartaoAssociacoes" Style="{StaticResource Cartao}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AbrirAssociacoes" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🌐  Unidades da rede" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Cadastrar novas associações e seus administradores." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Cartao}">
+                <Label Text="Ocorrências entram numa próxima fase."
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

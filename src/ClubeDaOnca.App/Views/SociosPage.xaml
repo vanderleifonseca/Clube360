@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.SociosPage"
+             x:DataType="vm:SociosViewModel"
+             Title="Sócios">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ Novo sócio" Command="{Binding NovoCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16" RowSpacing="8" MaximumWidthRequest="900">
+        <SearchBar Grid.Row="0" Placeholder="Buscar por nome, CPF ou nº do título" Text="{Binding Busca}"
+                   SearchCommand="{Binding BuscarCommand}" />
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
+            <Picker Title="Gênero" ItemsSource="{Binding Generos}" SelectedItem="{Binding Genero}"
+                    ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+            <Picker Grid.Column="1" Title="Situação" ItemsSource="{Binding Situacoes}" SelectedItem="{Binding Situacao}"
+                    ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+        </Grid>
+
+        <Label Grid.Row="2" Text="{Binding Resumo}" FontSize="13"
+               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+        <Label Grid.Row="3" Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <RefreshView Grid.Row="4" Command="{Binding BuscarCommand}" IsRefreshing="{Binding Carregando}">
+            <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhum sócio para mostrar." HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SocioLinha">
+                        <Border Style="{StaticResource Cartao}" Margin="0,4">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SociosViewModel}}, Path=AbrirCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="16" />
+                                    <Label Text="{Binding Detalhe}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding Situacao}" VerticalOptions="Center"
+                                       FontAttributes="Bold" FontSize="13" TextColor="#1B873F">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Ativo}" Value="False">
+                                            <Setter Property="TextColor" Value="{StaticResource Erro}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.ContratoPage"
+             x:DataType="vm:ContratoViewModel"
+             Title="{Binding Titulo}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="720">
+            <Label Text="{Binding SocioNome}" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <!-- Situação do contrato -->
+            <HorizontalStackLayout Spacing="10" IsVisible="{Binding TemContrato}">
+                <Label Text="{Binding Numero}" Style="{StaticResource SubHeadline}" VerticalOptions="Center" />
+                <Border BackgroundColor="{Binding CorStatus}" StrokeThickness="0" Padding="10,4" VerticalOptions="Center">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Label Text="{Binding StatusTexto}" TextColor="White" FontAttributes="Bold" FontSize="13" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <Border Style="{StaticResource Cartao}" IsVisible="{Binding Aviso, Converter={StaticResource IsStringNotNullOrEmptyConverter}}">
+                <Label Text="{Binding Aviso}" />
+            </Border>
+
+            <!-- Condições -->
+            <Label Text="Condições" FontAttributes="Bold" Margin="0,8,0,0" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Categoria" />
+                <Picker Grid.Row="1" ItemsSource="{Binding Categorias}" SelectedItem="{Binding Categoria}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" IsEnabled="{Binding Editavel}" />
+                <Label Grid.Column="1" Text="Mensalidade (R$)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Valor}" Keyboard="Numeric" IsEnabled="{Binding Editavel}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" IsVisible="{Binding TemContrato}">
+                <Label Text="Dia de vencimento" />
+                <Entry Grid.Row="1" Text="{Binding DiaVencimento}" Keyboard="Numeric" IsEnabled="{Binding Editavel}" />
+                <Label Grid.Column="1" Text="Primeiro vencimento" />
+                <DatePicker Grid.Column="1" Grid.Row="1" Date="{Binding PrimeiroVencimento}" Format="dd/MM/yyyy"
+                            MinimumDate="{Binding Hoje}" IsEnabled="{Binding Editavel}" />
+            </Grid>
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding TemContrato}">
+                <Switch IsToggled="{Binding RenovacaoAutomatica}" IsEnabled="{Binding Editavel}" />
+                <Label Text="Renovação automática a cada 12 meses" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Label Text="{Binding Vigencia, StringFormat='Vigência: {0}'}" IsVisible="{Binding TemContrato}" />
+
+            <!-- Dependentes no contrato -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding TemContrato}">
+                <Label Text="Dependentes no contrato" FontAttributes="Bold" Margin="0,8,0,0" />
+                <Label Text="Os dependentes ativos do cadastro entram no contrato quando a proposta é enviada."
+                       FontSize="13" IsVisible="{Binding SemDependentes}"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Dependentes}" Spacing="2">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DependenteContratoLinha">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Nome}" />
+                                <Label Text="{Binding Detalhe}" FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <!-- Ações -->
+            <Button Text="Criar contrato" Command="{Binding CriarCommand}" IsVisible="{Binding PodeCriar}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="Salvar alterações" Command="{Binding SalvarCommand}" IsVisible="{Binding Editavel}"
+                    BackgroundColor="{StaticResource Gray500}"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="{Binding TextoEnviar}" Command="{Binding EnviarCommand}" IsVisible="{Binding PodeEnviar}"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="Ver contrato (documento)" Command="{Binding VerDocumentoCommand}" IsVisible="{Binding TemDocumento}"
+                    BackgroundColor="{StaticResource Tertiary}"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding PodeRenovar}">
+                <Button Text="Renovar" Command="{Binding RenovarCommand}" />
+                <Button Text="Desligar associado" Command="{Binding DesligarCommand}" BackgroundColor="{StaticResource Erro}"
+                        IsVisible="{Binding PodeDesligar}" />
+            </HorizontalStackLayout>
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+
+            <!-- Parcelas (geradas na aprovação, com boleto) -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding TemParcelas}">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+                    <VerticalStackLayout>
+                        <Label Text="Parcelas" FontAttributes="Bold" />
+                        <Label Text="{Binding ResumoParcelas}" FontSize="13"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1" Text="Emitir boletos pendentes" Command="{Binding EmitirBoletosCommand}" FontSize="13" />
+                </Grid>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Parcelas}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CobrancaLinha">
+                            <Border Style="{StaticResource Cartao}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <Label Text="{Binding Detalhe}" FontSize="14" />
+                                    <Label Grid.Column="1" Text="{Binding Valor}" FontAttributes="Bold" />
+                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Situacao}" FontSize="13" TextColor="{StaticResource Gray500}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Paga">
+                                                <Setter Property="TextColor" Value="#1B873F" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Vencida">
+                                                <Setter Property="TextColor" Value="{StaticResource Erro}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding LinhaDigitavel, StringFormat='Boleto: {0}'}"
+                                           FontSize="12" IsVisible="{Binding TemBoleto}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Linha do tempo -->
+            <VerticalStackLayout Spacing="4" IsVisible="{Binding TemContrato}">
+                <Label Text="Andamento" FontAttributes="Bold" Margin="0,12,0,0" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding LinhaDoTempo}" Spacing="2">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Label Text="{Binding ., StringFormat='• {0}'}" FontSize="14" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Contratos anteriores -->
+            <VerticalStackLayout Spacing="4" IsVisible="{Binding TemAnteriores}">
+                <Label Text="Contratos anteriores" FontAttributes="Bold" Margin="0,12,0,0" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Anteriores}" Spacing="2">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ContratoAnteriorLinha">
+                            <Label Text="{Binding Texto}" FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

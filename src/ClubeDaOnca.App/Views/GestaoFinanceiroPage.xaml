@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.GestaoFinanceiroPage"
+             x:DataType="vm:GestaoFinanceiroViewModel"
+             Title="Financeiro do clube">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Inadimplentes" Command="{Binding InadimplentesCommand}" />
+        <ToolbarItem Text="Configuração" Command="{Binding ConfiguracaoCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16" RowSpacing="8" MaximumWidthRequest="900">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <Picker Title="Mostrar" ItemsSource="{Binding OpcoesFiltro}" SelectedItem="{Binding Filtro}"
+                    ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+            <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center">
+                <CheckBox IsChecked="{Binding FiltrarPorMes}" />
+                <Label Text="Só o mês" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <DatePicker Grid.Column="2" Date="{Binding Mes}" Format="MM/yyyy" />
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="8">
+            <Button Text="Gerar mensalidades do mês selecionado" Command="{Binding GerarMensalidadesCommand}" />
+            <Button Grid.Column="1" Text="+ Lançar cobrança avulsa" Command="{Binding LancarCobrancaCommand}"
+                    BackgroundColor="{StaticResource Tertiary}" />
+        </Grid>
+
+        <Label Grid.Row="2" Text="{Binding Resumo}" FontSize="13"
+               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+        <Label Grid.Row="3" Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <RefreshView Grid.Row="4" Command="{Binding CarregarCommand}" IsRefreshing="{Binding Carregando}">
+            <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CobrancaLinha">
+                        <Border Style="{StaticResource Cartao}" Margin="0,4">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                                <Label Text="{Binding Socio}" FontAttributes="Bold" />
+                                <Label Grid.Row="4" Grid.ColumnSpan="2" Text="{Binding Detalhe}" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                <Label Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding LinhaDigitavel, StringFormat='Boleto: {0}'}" FontSize="12"
+                                       IsVisible="{Binding TemBoleto}" />
+
+                                <Label Grid.Column="1" Text="{Binding Valor}" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Descricao}" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Situacao}" FontSize="13" TextColor="{StaticResource Gray500}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Paga">
+                                            <Setter Property="TextColor" Value="#1B873F" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Vencida">
+                                            <Setter Property="TextColor" Value="{StaticResource Erro}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2" Spacing="8" Margin="0,8,0,0" IsVisible="{Binding Aberta}">
+                                    <Button Text="Dar baixa"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GestaoFinanceiroViewModel}}, Path=BaixaCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Cancelar"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GestaoFinanceiroViewModel}}, Path=CancelarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

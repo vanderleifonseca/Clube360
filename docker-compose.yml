@@ -1,0 +1,33 @@
+﻿services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: clubedaonca
+      POSTGRES_USER: clube
+      POSTGRES_PASSWORD: clube_dev
+    ports:
+      - "5440:5432" # 5440 no host para não conflitar com Postgres instalado localmente
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clube -d clubedaonca"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ClubeDaOnca.Api/Dockerfile
+    profiles: ["full"] # sobe só com: docker compose --profile full up
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=db;Port=5432;Database=clubedaonca;Username=clube;Password=clube_dev
+    ports:
+      - "5080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.DependentePage"
+             x:DataType="vm:DependenteViewModel"
+             Title="{Binding TituloPagina}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="640">
+            <Label Text="{Binding Cabecalho}" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <Label Text="Nome completo" />
+            <Entry Text="{Binding Nome}" />
+
+            <Label Text="CPF (opcional para menores)" />
+            <Entry Text="{Binding Cpf}" Keyboard="Numeric" Placeholder="000.000.000-00" MaxLength="14" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Data de nascimento" />
+                <DatePicker Grid.Row="1" Date="{Binding DataNascimento}" Format="dd/MM/yyyy" MaximumDate="{Binding Hoje}" />
+                <Label Grid.Column="1" Text="Gênero" />
+                <Picker Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Generos}" SelectedItem="{Binding Genero}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+            </Grid>
+
+            <Label Text="Parentesco" />
+            <Picker ItemsSource="{Binding Parentescos}" SelectedItem="{Binding Parentesco}"
+                    ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="E-mail (opcional)" />
+                <Entry Grid.Row="1" Text="{Binding Email}" Keyboard="Email" />
+                <Label Grid.Column="1" Text="Telefone (opcional)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Telefone}" Keyboard="Telephone" />
+            </Grid>
+
+            <Label Text="Qualificação (profissão, opcional)" />
+            <Entry Text="{Binding Profissao}" MaxLength="100" />
+
+            <Label Text="O endereço do dependente é o mesmo do titular." FontSize="13"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

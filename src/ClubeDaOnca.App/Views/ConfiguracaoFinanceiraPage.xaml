@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.ConfiguracaoFinanceiraPage"
+             x:DataType="vm:ConfiguracaoFinanceiraViewModel"
+             Title="Configuração financeira">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="640">
+            <Label Text="Valor da mensalidade por categoria (R$)" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" />
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Individual" />
+                <Entry Grid.Row="1" Text="{Binding ValorIndividual}" Keyboard="Numeric" />
+                <Label Grid.Column="1" Text="Familiar" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding ValorFamiliar}" Keyboard="Numeric" />
+                <Label Grid.Column="2" Text="Remido (0 = isento)" />
+                <Entry Grid.Column="2" Grid.Row="1" Text="{Binding ValorRemido}" Keyboard="Numeric" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Dia do vencimento" />
+                <Entry Grid.Row="1" Text="{Binding DiaVencimento}" Keyboard="Numeric" />
+                <Label Grid.Column="1" Text="Tolerância até inadimplência (dias)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding DiasTolerancia}" Keyboard="Numeric" />
+            </Grid>
+
+            <Label Text="Prazo para pagar a taxa de reserva (dias)" />
+            <Entry Text="{Binding PrazoTaxaReservaDias}" Keyboard="Numeric" />
+
+            <Label Text="Inadimplentes" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,8,0,0" />
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding BloquearReservas}" />
+                <Label Text="Não podem fazer reservas" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding BloquearPortaria}" />
+                <Label Text="Têm a entrada bloqueada na portaria (se desligado, o porteiro só recebe um aviso)" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+            <Label Text="Somente o perfil Admin pode alterar estes valores." FontSize="13"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

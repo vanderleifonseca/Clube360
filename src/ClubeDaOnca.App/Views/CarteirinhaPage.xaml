@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.CarteirinhaPage"
+             x:DataType="vm:CarteirinhaViewModel"
+             Title="Carteirinha">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Atualizar" Command="{Binding CarregarCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0,8">
+        <Label Grid.Row="0" Text="{Binding Aviso}" Margin="24,0" HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+               IsVisible="{Binding Aviso, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <CarouselView Grid.Row="1" x:Name="Carrossel" ItemsSource="{Binding Itens}"
+                      IndicatorView="Indicadores" Loop="False" PeekAreaInsets="16">
+            <CarouselView.ItemTemplate>
+                <DataTemplate x:DataType="vm:CarteirinhaItemViewModel">
+                    <Border Margin="8" Padding="0" StrokeShape="RoundRectangle 20" StrokeThickness="0"
+                            MaximumWidthRequest="420" VerticalOptions="Start"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource Gray900}}">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.15" Radius="12" Offset="0,4" />
+                        </Border.Shadow>
+                        <VerticalStackLayout>
+                            <!-- Faixa com a identidade do clube -->
+                            <Grid BackgroundColor="{StaticResource Primary}" Padding="20,16" ColumnDefinitions="Auto,*">
+                                <Image Source="logo.png" HeightRequest="56" WidthRequest="47" Aspect="AspectFit" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" VerticalOptions="Center">
+                                    <Label Text="CLUBE DA ONÇA" TextColor="White" FontAttributes="Bold" FontSize="16" />
+                                    <Label Text="Carteirinha de sócio" TextColor="{StaticResource Secondary}" FontSize="13" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <VerticalStackLayout Padding="20" Spacing="4">
+                                <Label Text="{Binding Nome}" FontSize="20" FontAttributes="Bold" />
+                                <Label Text="{Binding Vinculo}" />
+                                <Label Text="{Binding Titulo}" />
+                                <Label Text="{Binding Nascimento}"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+                                <Border Margin="0,8,0,0" Padding="10,4" HorizontalOptions="Start" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 12" BackgroundColor="#1B873F">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Ativo}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Erro}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="{Binding Situacao}" TextColor="White" FontAttributes="Bold" FontSize="13" />
+                                </Border>
+
+                                <!-- Fundo branco fixo: o leitor precisa de contraste também no tema escuro -->
+                                <Border Margin="0,16,0,0" Padding="12" BackgroundColor="White" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 12" HorizontalOptions="Center">
+                                    <Image Source="{Binding Qr}" WidthRequest="240" HeightRequest="240" />
+                                </Border>
+                                <ProgressBar Progress="{Binding Progresso}" ProgressColor="{StaticResource Primary}" Margin="0,8,0,0" />
+                                <Label Text="{Binding Contagem}" HorizontalOptions="Center" FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <IndicatorView Grid.Row="2" x:Name="Indicadores" HorizontalOptions="Center" Margin="0,8"
+                       IndicatorColor="{StaticResource Gray300}" SelectedIndicatorColor="{StaticResource Primary}" />
+
+        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}"
+                           Color="{StaticResource Primary}" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>

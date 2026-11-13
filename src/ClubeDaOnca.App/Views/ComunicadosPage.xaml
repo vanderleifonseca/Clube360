@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.ComunicadosPage"
+             x:DataType="vm:ComunicadosViewModel"
+             Title="Comunicados">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="760">
+            <Label Text="Novo comunicado" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" />
+            <Label Text="{Binding SituacaoCanais}" FontSize="13"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+            <Entry Text="{Binding Titulo}" Placeholder="Título" MaxLength="150" />
+            <Editor Text="{Binding Texto}" Placeholder="Mensagem aos associados" AutoSize="TextChanges" MaxLength="2000" HeightRequest="120" />
+
+            <Label Text="Enviar por" FontAttributes="Bold" />
+            <HorizontalStackLayout Spacing="16">
+                <HorizontalStackLayout>
+                    <CheckBox IsChecked="{Binding CanalApp}" />
+                    <Label Text="App" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <CheckBox IsChecked="{Binding CanalEmail}" />
+                    <Label Text="E-mail" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout IsEnabled="{Binding WhatsAppDisponivel}">
+                    <CheckBox IsChecked="{Binding CanalWhatsApp}" IsEnabled="{Binding WhatsAppDisponivel}" />
+                    <Label Text="WhatsApp" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+            <Button Text="Enviar aos associados" Command="{Binding EnviarCommand}"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+
+            <Label Text="Enviados" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Itens}" Spacing="8">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DivulgacaoLinha">
+                        <Border Style="{StaticResource Cartao}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ComunicadosViewModel}}, Path=DetalharCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Titulo}" FontAttributes="Bold" />
+                                <Label Text="{Binding Detalhe}" FontSize="13" />
+                                <Label Text="{Binding Totais}" FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                <Label Text="Toque para ver quem não recebeu e por quê." FontSize="12" TextColor="{StaticResource Primary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

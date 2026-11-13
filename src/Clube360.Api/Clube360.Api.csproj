@@ -1,1 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework><!-- Existing local credentials remain in the same user-secrets store. --><UserSecretsId>FisgadaPro.Api.Local</UserSecretsId></PropertyGroup><ItemGroup><ProjectReference Include="../Clube360.Infrastructure/Clube360.Infrastructure.csproj" /></ItemGroup></Project>

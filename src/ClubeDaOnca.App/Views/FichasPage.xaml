@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.FichasPage"
+             x:DataType="vm:FichasViewModel"
+             Title="Fichas para aprovação">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="8" MaximumWidthRequest="900">
+        <Label Text="{Binding Resumo}" FontAttributes="Bold" />
+        <Label Grid.Row="1" Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <RefreshView Grid.Row="2" Command="{Binding CarregarCommand}" IsRefreshing="{Binding Carregando}">
+            <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:FichaLinha">
+                        <Border Style="{StaticResource Cartao}" Margin="0,6">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="17" />
+                                <Label Text="{Binding Resumo}" FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                                <Label Text="{Binding Dados}" FontSize="14" />
+                                <Label Text="Dependentes" FontAttributes="Bold" Margin="0,4,0,0" />
+                                <Label Text="{Binding DependentesTexto}" FontSize="14" />
+                                <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                                    <Button Text="Ver contrato" BackgroundColor="{StaticResource Tertiary}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FichasViewModel}}, Path=VerContratoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Aprovar" BackgroundColor="#1B873F"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FichasViewModel}}, Path=AprovarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Reprovar" BackgroundColor="{StaticResource Erro}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FichasViewModel}}, Path=ReprovarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

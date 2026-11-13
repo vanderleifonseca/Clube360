@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.ReservasPage"
+             x:DataType="vm:ReservasViewModel"
+             Title="Reservas">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ Nova reserva" Command="{Binding NovaCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="8" MaximumWidthRequest="720">
+        <Button Grid.Row="0" Text="Reservar um espaço" Command="{Binding NovaCommand}" />
+        <Label Grid.Row="1" Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <RefreshView Grid.Row="2" Command="{Binding CarregarCommand}" IsRefreshing="{Binding Carregando}">
+            <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="Você ainda não tem reservas." HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ReservaLinha">
+                        <Border Style="{StaticResource Cartao}" Margin="0,4">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                                <Label Text="{Binding Espaco}" FontAttributes="Bold" FontSize="16" />
+                                <Label Grid.Row="1" Text="{Binding Quando}" />
+                                <Label Grid.Row="2" Text="{Binding Detalhe}" FontSize="13" IsVisible="{Binding TemDetalhe}"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                <Label Grid.Row="3" Text="{Binding StatusTexto}" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource Gray500}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Confirmada">
+                                            <Setter Property="TextColor" Value="#1B873F" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Pendente">
+                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Recusada">
+                                            <Setter Property="TextColor" Value="{StaticResource Erro}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Button Grid.Column="1" Grid.RowSpan="4" Text="Cancelar" VerticalOptions="Center"
+                                        IsVisible="{Binding PodeCancelar}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReservasViewModel}}, Path=CancelarCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.PortariaPage"
+             x:DataType="vm:PortariaViewModel"
+             Title="Portaria">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16" RowSpacing="10" MaximumWidthRequest="900">
+        <Label Grid.Row="0" Text="Leia o QR Code da carteirinha com a câmera ou com um leitor USB/Bluetooth. O código também pode ser colado no campo."
+               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                <Entry x:Name="CampoCodigo" Text="{Binding Codigo}" Placeholder="Código da carteirinha"
+                       ReturnType="Go" ReturnCommand="{Binding ValidarCommand}"
+                       IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" />
+                <Button Grid.Column="1" Text="Validar" Command="{Binding ValidarCommand}" />
+                <Button Grid.Column="2" x:Name="BotaoCamera" Text="📷 Câmera" Clicked="AlternarCamera" />
+            </Grid>
+
+            <!-- Criada só quando o porteiro liga a câmera (ver PortariaPage.xaml.cs) -->
+            <Border x:Name="AreaCamera" IsVisible="False" HeightRequest="280" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16" BackgroundColor="Black" />
+        </VerticalStackLayout>
+
+        <Label Grid.Row="2" Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+        <!-- Resultado grande e colorido para leitura rápida pelo porteiro -->
+        <Border Grid.Row="3" IsVisible="{Binding TemResultado}" Padding="20" StrokeThickness="0"
+                StrokeShape="RoundRectangle 16" BackgroundColor="{Binding CorResultado}">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="{Binding Status}" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="{Binding NomePessoa}" TextColor="White" FontSize="22" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding Detalhe}" TextColor="White" FontSize="16" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Grid Grid.Row="4" RowDefinitions="Auto,*" RowSpacing="6">
+            <Label Text="Últimas leituras" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" />
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Acessos}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhuma leitura registrada ainda." Margin="0,12" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AcessoLinha">
+                        <Grid ColumnDefinitions="32,*" Padding="0,6">
+                            <Label Text="{Binding Icone}" FontSize="18" FontAttributes="Bold" TextColor="#1B873F" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Liberado}" Value="False">
+                                        <Setter Property="TextColor" Value="{StaticResource Erro}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Text="{Binding Nome}" FontAttributes="Bold" />
+                                <Label Text="{Binding Detalhe}" FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>

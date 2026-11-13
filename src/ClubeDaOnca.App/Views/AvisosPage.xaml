@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.AvisosPage"
+             x:DataType="vm:AvisosViewModel"
+             Title="Avisos">
+
+    <RefreshView Command="{Binding CarregarCommand}" IsRefreshing="{Binding Carregando}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="8" MaximumWidthRequest="760">
+                <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                       IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+                <Label Text="Nenhum aviso por enquanto." IsVisible="{Binding SemAvisos}" HorizontalOptions="Center" Margin="0,16" />
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Itens}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AvisoLinha">
+                            <Border Style="{StaticResource Cartao}">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Titulo}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Mensagem}" />
+                                    <Label Text="{Binding Quando}" FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Preferências (LGPD) -->
+                <Label Text="Como quer receber as divulgações" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+                <Label Text="Avisos sobre suas mensalidades e seu contrato chegam sempre, independentemente destas opções."
+                       FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                <HorizontalStackLayout Spacing="8">
+                    <Switch IsToggled="{Binding AvisosApp}" />
+                    <Label Text="Avisos aqui no app" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8">
+                    <Switch IsToggled="{Binding Email}" />
+                    <Label Text="E-mail" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8">
+                    <Switch IsToggled="{Binding WhatsApp}" />
+                    <Label Text="WhatsApp" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Label Text="{Binding Mensagem}" TextColor="#1B873F" FontSize="13"
+                       IsVisible="{Binding Mensagem, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

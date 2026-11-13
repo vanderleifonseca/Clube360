@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.AssociacoesPage"
+             x:DataType="vm:AssociacoesViewModel"
+             Title="Associações">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ Nova associação" Command="{Binding NovaCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*" Padding="16" RowSpacing="8" MaximumWidthRequest="900">
+        <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+               IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+        <RefreshView Grid.Row="1" Command="{Binding CarregarCommand}" IsRefreshing="{Binding Carregando}">
+            <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhuma associação cadastrada." HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AssociacaoLinha">
+                        <Border Style="{StaticResource Cartao}" Margin="0,4">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AssociacoesViewModel}}, Path=AbrirCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="16" />
+                                    <Label Text="{Binding Detalhe}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                    <Label Text="⚠ Mandato do presidente termina em breve" FontSize="13"
+                                           TextColor="{StaticResource Primary}" IsVisible="{Binding MandatoVencendo}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding Situacao}" VerticalOptions="Center" FontAttributes="Bold"
+                                       FontSize="13" TextColor="#1B873F">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Ativa}" Value="False">
+                                            <Setter Property="TextColor" Value="{StaticResource Gray500}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

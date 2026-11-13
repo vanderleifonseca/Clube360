@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.SocioPage"
+             x:DataType="vm:SocioViewModel"
+             Title="{Binding TituloPagina}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="720">
+            <Label Text="{Binding Cabecalho}" FontAttributes="Bold" IsVisible="{Binding EhEdicao}"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <!-- Dados pessoais -->
+            <Label Text="Dados pessoais" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" />
+
+            <Label Text="Nome completo" />
+            <Entry Text="{Binding Nome}" Keyboard="Text" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="CPF" />
+                <Entry Grid.Row="1" Text="{Binding Cpf}" Keyboard="Numeric" Placeholder="000.000.000-00" MaxLength="14" />
+                <Label Grid.Column="1" Text="Telefone" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Telefone}" Keyboard="Telephone" Placeholder="(45) 99999-0000" />
+            </Grid>
+
+            <Label Text="E-mail (usado para entrar no app)" />
+            <Entry Text="{Binding Email}" Keyboard="Email" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Data de nascimento" />
+                <DatePicker Grid.Row="1" Date="{Binding DataNascimento}" Format="dd/MM/yyyy" MaximumDate="{Binding Hoje}" />
+                <Label Grid.Column="1" Text="Gênero" />
+                <Picker Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Generos}" SelectedItem="{Binding Genero}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="RG (com órgão emissor)" />
+                <Entry Grid.Row="1" Text="{Binding Rg}" Placeholder="12.345.678-9 SSP/PR" MaxLength="30" />
+                <Label Grid.Column="1" Text="Estado civil" />
+                <Picker Grid.Column="1" Grid.Row="1" ItemsSource="{Binding EstadosCivis}" SelectedItem="{Binding EstadoCivil}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Nacionalidade" />
+                <Entry Grid.Row="1" Text="{Binding Nacionalidade}" MaxLength="60" />
+                <Label Grid.Column="1" Text="Qualificação (profissão)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Profissao}" MaxLength="100" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Categoria do título" />
+                <Picker Grid.Row="1" ItemsSource="{Binding Categorias}" SelectedItem="{Binding Categoria}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+                <Label Grid.Column="1" Text="Data de cadastro" />
+                <DatePicker Grid.Column="1" Grid.Row="1" Date="{Binding DataCadastro}" Format="dd/MM/yyyy" MaximumDate="{Binding Hoje}" />
+            </Grid>
+
+            <!-- Endereço -->
+            <Label Text="Endereço" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,12,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="CEP" />
+                <Entry Grid.Row="1" Text="{Binding Cep}" Keyboard="Numeric" Placeholder="00000-000" MaxLength="9" />
+                <Button Grid.Column="1" Grid.Row="1" Text="Buscar CEP" Command="{Binding BuscarCepCommand}" />
+            </Grid>
+            <Grid ColumnDefinitions="3*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Logradouro" />
+                <Entry Grid.Row="1" Text="{Binding Logradouro}" />
+                <Label Grid.Column="1" Text="Número" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Numero}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Complemento" />
+                <Entry Grid.Row="1" Text="{Binding Complemento}" />
+                <Label Grid.Column="1" Text="Bairro" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Bairro}" />
+            </Grid>
+            <Grid ColumnDefinitions="3*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Cidade" />
+                <Entry Grid.Row="1" Text="{Binding Cidade}" />
+                <Label Grid.Column="1" Text="UF" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Uf}" MaxLength="2" />
+            </Grid>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+
+            <Label Text="{Binding Rodape}" FontSize="13" IsVisible="{Binding EhEdicao}"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+            <!-- Só aparece depois que o título existe -->
+            <VerticalStackLayout IsVisible="{Binding EhEdicao}" Spacing="10" Margin="0,16,0,0">
+                <Button Text="📄  Contrato de adesão" Command="{Binding AbrirContratoCommand}" />
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="Alterar situação" Command="{Binding AlterarSituacaoCommand}" />
+                    <Button Text="Renovar QR Code" Command="{Binding RenovarQrCommand}" />
+                </HorizontalStackLayout>
+
+                <!-- Dependentes -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+                    <Label Text="Dependentes" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="+ Adicionar" Command="{Binding NovoDependenteCommand}" />
+                </Grid>
+
+                <Label Text="Nenhum dependente cadastrado." IsVisible="{Binding SemDependentes}"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Dependentes}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DependenteLinha">
+                            <Border Style="{StaticResource Cartao}">
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Nome}" FontAttributes="Bold">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Ativo}" Value="False">
+                                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding Detalhe}" FontSize="13"
+                                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1" Text="Editar" VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SocioViewModel}}, Path=AbrirDependenteCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="2" Text="{Binding AcaoAtivo}" VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SocioViewModel}}, Path=AlternarAtivoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Histórico -->
+                <Label Text="Histórico de alterações" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+                <Label Text="Nenhuma alteração registrada." IsVisible="{Binding SemHistorico}"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Historico}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:HistoricoLinha">
+                            <VerticalStackLayout Spacing="0" Padding="0,2">
+                                <Label Text="{Binding Cabecalho}" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                <Label Text="{Binding Texto}" FontSize="14" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

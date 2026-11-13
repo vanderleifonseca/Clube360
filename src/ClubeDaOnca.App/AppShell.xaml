@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ClubeDaOnca.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ClubeDaOnca.App.Views"
+    Title="Clube da Onça"
+    Shell.FlyoutBehavior="Disabled">
+
+    <ShellContent Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
+    <ShellContent Route="trocar-senha" ContentTemplate="{DataTemplate views:TrocarSenhaPage}" />
+
+    <TabBar Route="main">
+        <Tab Title="Início" Route="inicio">
+            <ShellContent ContentTemplate="{DataTemplate views:InicioPage}" />
+        </Tab>
+        <Tab x:Name="CarteirinhaTab" Title="Carteirinha" Route="carteirinha" IsVisible="False">
+            <ShellContent ContentTemplate="{DataTemplate views:CarteirinhaPage}" />
+        </Tab>
+        <Tab x:Name="ReservasTab" Title="Reservas" Route="reservas" IsVisible="False">
+            <ShellContent ContentTemplate="{DataTemplate views:ReservasPage}" />
+        </Tab>
+        <Tab x:Name="EventosTab" Title="Eventos" Route="eventos" IsVisible="False">
+            <ShellContent ContentTemplate="{DataTemplate views:EventosPage}" />
+        </Tab>
+        <Tab x:Name="FinanceiroTab" Title="Financeiro" Route="financeiro" IsVisible="False">
+            <ShellContent ContentTemplate="{DataTemplate views:FinanceiroPage}" />
+        </Tab>
+        <Tab x:Name="GestaoTab" Title="Gestão" Route="gestao" IsVisible="False">
+            <ShellContent ContentTemplate="{DataTemplate views:GestaoPage}" />
+        </Tab>
+    </TabBar>
+</Shell>

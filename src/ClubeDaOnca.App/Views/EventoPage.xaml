@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.EventoPage"
+             x:DataType="vm:EventoViewModel"
+             Title="{Binding TituloPagina}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="760">
+            <Label Text="{Binding Status}" FontAttributes="Bold" IsVisible="{Binding Existe}"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <Label Text="Título" />
+            <Entry Text="{Binding Titulo}" MaxLength="150" IsEnabled="{Binding Editavel}" />
+            <Label Text="Descrição (aparece para os sócios)" />
+            <Editor Text="{Binding Descricao}" AutoSize="TextChanges" MaxLength="2000" IsEnabled="{Binding Editavel}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto,Auto">
+                <Label Text="Início" />
+                <DatePicker Grid.Row="1" Date="{Binding DataInicio}" Format="dd/MM/yyyy" IsEnabled="{Binding Editavel}" />
+                <TimePicker Grid.Row="1" Grid.Column="1" Time="{Binding HoraInicio}" Format="HH:mm" IsEnabled="{Binding Editavel}" />
+                <Label Grid.Row="2" Text="Término" />
+                <DatePicker Grid.Row="3" Date="{Binding DataTermino}" Format="dd/MM/yyyy" IsEnabled="{Binding Editavel}" />
+                <TimePicker Grid.Row="3" Grid.Column="1" Time="{Binding HoraTermino}" Format="HH:mm" IsEnabled="{Binding Editavel}" />
+            </Grid>
+
+            <!-- Locais -->
+            <Label Text="Locais" FontAttributes="Bold" Margin="0,8,0,0" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Locais}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LocalEscolha">
+                        <HorizontalStackLayout>
+                            <CheckBox IsChecked="{Binding Marcado}" />
+                            <Label Text="{Binding Texto}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <Button Text="📅  Verificar agenda" Command="{Binding VerificarAgendaCommand}" HorizontalOptions="Start"
+                    BackgroundColor="{StaticResource Tertiary}" IsVisible="{Binding Editavel}" />
+            <Label Text="{Binding Agenda}" FontAttributes="Bold"
+                   IsVisible="{Binding Agenda, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Conflitos}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Label Text="{Binding ., StringFormat='• {0}'}" FontSize="13" TextColor="{StaticResource Erro}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Capacidade (pessoas)" />
+                <Entry Grid.Row="1" Text="{Binding Capacidade}" Keyboard="Numeric" IsEnabled="{Binding Editavel}" />
+                <Label Grid.Column="1" Text="Cancelar reserva até (horas antes)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding PrazoCancelamentoHoras}" Keyboard="Numeric" IsEnabled="{Binding Editavel}" />
+            </Grid>
+
+            <!-- Divulgação -->
+            <Label Text="Público e divulgação" FontAttributes="Bold" Margin="0,8,0,0" />
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding AbertoAoPublico}" IsEnabled="{Binding Editavel}" />
+                <Label Text="Aberto ao público (sócios podem levar convidados)" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding DivulgarAssociados}" IsEnabled="{Binding Editavel}" />
+                <Label Text="Divulgar aos associados (app, e-mail e WhatsApp)" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding AbertoAoPublico}">
+                <Switch IsToggled="{Binding DivulgarRedesSociais}" IsEnabled="{Binding Editavel}" />
+                <Label Text="Divulgar nas redes sociais" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <!-- Ambientes -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                <Label Text="Ambientes reserváveis" FontAttributes="Bold" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="+ Ambiente" Command="{Binding AdicionarAmbienteCommand}" IsVisible="{Binding Editavel}" />
+            </Grid>
+            <Label Text="Ex.: &quot;Mesa para 8&quot; com 40 vagas, &quot;Quiosque&quot; com 6 vagas. Cada vaga é uma reserva."
+                   FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Ambientes}" Spacing="8">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AmbienteEdicao">
+                        <Border Style="{StaticResource Cartao}">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Entry Text="{Binding Nome}" Placeholder="Nome do ambiente" />
+                                    <Button Grid.Column="1" Text="Remover" FontSize="12" BackgroundColor="{StaticResource Gray500}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EventoViewModel}}, Path=RemoverAmbienteCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto">
+                                    <Label Text="Vagas" FontSize="12" />
+                                    <Entry Grid.Row="1" Text="{Binding Vagas}" Keyboard="Numeric" />
+                                    <Label Grid.Column="1" Text="Pessoas/reserva" FontSize="12" />
+                                    <Entry Grid.Row="1" Grid.Column="1" Text="{Binding PessoasPorReserva}" Keyboard="Numeric" />
+                                    <Label Grid.Column="2" Text="Limite/sócio" FontSize="12" />
+                                    <Entry Grid.Row="1" Grid.Column="2" Text="{Binding LimitePorSocio}" Keyboard="Numeric" />
+                                    <Label Grid.Column="3" Text="Valor (R$)" FontSize="12" />
+                                    <Entry Grid.Row="1" Grid.Column="3" Text="{Binding Valor}" Keyboard="Numeric" />
+                                </Grid>
+                                <Label Text="{Binding Resumo}" FontSize="12" TextColor="{StaticResource Primary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}" IsVisible="{Binding Editavel}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="Publicar para os sócios" Command="{Binding PublicarCommand}" IsVisible="{Binding PodePublicar}"
+                    BackgroundColor="#1B873F" />
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding PodeCancelar}">
+                <Button Text="📣  Divulgar agora" Command="{Binding DivulgarAgoraCommand}" />
+                <Button Text="📷  Post para redes sociais" Command="{Binding PostRedesCommand}" IsVisible="{Binding PodePostRedes}"
+                        BackgroundColor="{StaticResource Tertiary}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding Existe}">
+                <Button Text="Ver reservas" Command="{Binding VerReservasCommand}" BackgroundColor="{StaticResource Tertiary}" />
+                <Button Text="Cancelar evento" Command="{Binding CancelarEventoCommand}" IsVisible="{Binding PodeCancelar}"
+                        BackgroundColor="{StaticResource Erro}" />
+            </HorizontalStackLayout>
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+
+            <!-- Reservas do evento -->
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding TemReservas}">
+                <Label Text="Reservas" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,12,0,0" />
+                <Label Text="Nenhuma reserva ainda." IsVisible="{Binding SemReservas}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Reservas}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ReservaEventoLinha">
+                            <Border Style="{StaticResource Cartao}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding Socio}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Titulo}" FontSize="13" />
+                                        <Label Text="{Binding Detalhe}" FontSize="13" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1" Text="Cancelar" IsVisible="{Binding PodeCancelar}" VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EventoViewModel}}, Path=CancelarReservaCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

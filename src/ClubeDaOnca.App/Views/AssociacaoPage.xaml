@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.AssociacaoPage"
+             x:DataType="vm:AssociacaoViewModel"
+             Title="{Binding TituloPagina}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="720">
+
+            <!-- Dados da associação -->
+            <Label Text="Dados da associação" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" />
+
+            <Label Text="Nome" />
+            <Entry Text="{Binding Nome}" MaxLength="150" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="CNPJ" />
+                <Entry Grid.Row="1" Text="{Binding Cnpj}" Keyboard="Numeric" Placeholder="00.000.000/0000-00" />
+                <Label Grid.Column="1" Text="Telefone" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Telefone}" Keyboard="Telephone" />
+            </Grid>
+
+            <Label Text="E-mail da associação" />
+            <Entry Text="{Binding Email}" Keyboard="Email" />
+
+            <Label Text="Endereço" FontAttributes="Bold" Margin="0,8,0,0" />
+            <Grid ColumnDefinitions="2*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="CEP" />
+                <Entry Grid.Row="1" Text="{Binding Cep}" Keyboard="Numeric" Placeholder="00000-000" />
+            </Grid>
+            <Grid ColumnDefinitions="3*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Logradouro" />
+                <Entry Grid.Row="1" Text="{Binding Logradouro}" />
+                <Label Grid.Column="1" Text="Número" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Numero}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Complemento" />
+                <Entry Grid.Row="1" Text="{Binding Complemento}" />
+                <Label Grid.Column="1" Text="Bairro" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Bairro}" />
+            </Grid>
+            <Grid ColumnDefinitions="3*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Cidade" />
+                <Entry Grid.Row="1" Text="{Binding Cidade}" />
+                <Label Grid.Column="1" Text="UF" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Uf}" MaxLength="2" />
+            </Grid>
+
+            <!-- Administrador da nova unidade -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding Nova}">
+                <Label Text="Administrador da unidade" FontAttributes="Bold" Margin="0,8,0,0" />
+                <Label Text="Ele recebe um login (e-mail) e uma senha provisória para administrar a nova associação."
+                       FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                <Label Text="Nome" />
+                <Entry Text="{Binding AdminNome}" />
+                <Label Text="E-mail (login)" />
+                <Entry Text="{Binding AdminEmail}" Keyboard="Email" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+            <Label Text="{Binding Mensagem}" TextColor="#1B873F"
+                   IsVisible="{Binding Mensagem, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="Ativar / desativar associação" Command="{Binding AlternarAtivaCommand}" IsVisible="{Binding PodeAtivar}"
+                    BackgroundColor="{StaticResource Gray500}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+
+            <!-- Presidente e diretoria: só depois de cadastrada -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding Nova, Converter={StaticResource InvertedBoolConverter}}">
+
+                <Label Text="Presidente" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+                <Border Style="{StaticResource Cartao}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding PresidenteAtual}" FontAttributes="Bold" />
+                        <Label Text="⚠ O mandato termina em menos de 60 dias. Cadastre o próximo presidente."
+                               TextColor="{StaticResource Primary}" IsVisible="{Binding MandatoVencendo}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Mandatos}" Spacing="4">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MandatoLinha">
+                            <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Nome}" />
+                                    <Label Text="{Binding Periodo}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="Remover" FontSize="12" Padding="10,4"
+                                        BackgroundColor="{StaticResource Gray500}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AssociacaoViewModel}}, Path=RemoverMandatoCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="Novo mandato (2 anos a partir do início)" FontAttributes="Bold" />
+                <Entry Text="{Binding NovoPresidenteNome}" Placeholder="Nome do presidente" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Text="{Binding NovoPresidenteCpf}" Placeholder="CPF (opcional)" Keyboard="Numeric" />
+                    <Entry Grid.Column="1" Text="{Binding NovoPresidenteEmail}" Placeholder="E-mail (aprova novos sócios)" Keyboard="Email" />
+                </Grid>
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Início do mandato" VerticalOptions="Center" />
+                    <DatePicker Date="{Binding NovoPresidenteInicio}" Format="dd/MM/yyyy" />
+                </HorizontalStackLayout>
+                <Button Text="Cadastrar mandato" Command="{Binding AdicionarPresidenteCommand}"
+                        IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+
+                <!-- Pagamentos: conta do Asaas da unidade -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding PodePagamentos}">
+                    <Label Text="Pagamentos (Asaas)" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+                    <Label Text="{Binding SituacaoAsaas}" />
+                    <Label Text="Os boletos e o dinheiro das mensalidades vão para a conta do Asaas desta unidade. Gere a chave no painel do Asaas (Integrações → Chave de API)."
+                           FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                    <Entry Text="{Binding NovaChaveAsaas}" Placeholder="Nova chave da API do Asaas" IsPassword="True" />
+                    <Entry Text="{Binding NovoTokenWebhook}" Placeholder="Token do webhook (você escolhe)" IsPassword="True" />
+                    <Label Text="No Asaas, cadastre o webhook de cobranças com este endereço e o mesmo token:" FontSize="13" />
+                    <Label Text="{Binding WebhookUrl}" FontAttributes="Bold" FontSize="13" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Salvar conta do Asaas" Command="{Binding SalvarPagamentosCommand}" />
+                        <Button Text="Usar conta geral" Command="{Binding RemoverContaAsaasCommand}" BackgroundColor="{StaticResource Gray500}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <Label Text="Diretoria" Style="{StaticResource SubHeadline}" HorizontalOptions="Start" Margin="0,16,0,0" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Diretores}" Spacing="4">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DiretorLinha">
+                            <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Nome}" />
+                                    <Label Text="{Binding Detalhe}" FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="Remover" FontSize="12" Padding="10,4"
+                                        BackgroundColor="{StaticResource Gray500}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AssociacaoViewModel}}, Path=RemoverDiretorCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="Novo diretor" FontAttributes="Bold" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Text="{Binding NovoDiretorNome}" Placeholder="Nome" />
+                    <Entry Grid.Column="1" Text="{Binding NovoDiretorCargo}" Placeholder="Cargo (ex.: Diretor financeiro)" />
+                </Grid>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Text="{Binding NovoDiretorEmail}" Placeholder="E-mail (opcional)" Keyboard="Email" />
+                    <Entry Grid.Column="1" Text="{Binding NovoDiretorTelefone}" Placeholder="Telefone (opcional)" Keyboard="Telephone" />
+                </Grid>
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Na diretoria desde" VerticalOptions="Center" />
+                    <DatePicker Date="{Binding NovoDiretorInicio}" Format="dd/MM/yyyy" />
+                </HorizontalStackLayout>
+                <Button Text="Adicionar diretor" Command="{Binding AdicionarDiretorCommand}"
+                        IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

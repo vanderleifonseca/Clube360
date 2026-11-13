@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.PagamentoPage"
+             x:DataType="vm:PagamentoViewModel"
+             Title="Pagamento">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12" MaximumWidthRequest="520">
+            <Label Text="{Binding Descricao}" FontAttributes="Bold" FontSize="17" HorizontalTextAlignment="Center" />
+
+            <!-- Pix -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding EhPix}">
+                <Label Text="Escaneie o QR Code no app do seu banco ou copie o código Pix." HorizontalTextAlignment="Center" />
+                <Border Padding="12" BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 12" HorizontalOptions="Center">
+                    <Image Source="{Binding QrPix}" WidthRequest="240" HeightRequest="240" />
+                </Border>
+                <Label Text="{Binding Validade}" FontSize="13" HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                <Border Style="{StaticResource Cartao}">
+                    <Label Text="{Binding CopiaECola}" FontSize="12" LineBreakMode="CharacterWrap" />
+                </Border>
+                <Button Text="Copiar código Pix" Command="{Binding CopiarCommand}" />
+            </VerticalStackLayout>
+
+            <!-- Boleto -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding EhPix, Converter={StaticResource InvertedBoolConverter}}">
+                <Label Text="Pague pelo app do banco usando a linha digitável, ou abra o boleto para imprimir." HorizontalTextAlignment="Center" />
+                <Border Style="{StaticResource Cartao}">
+                    <Label Text="{Binding LinhaDigitavel}" FontSize="15" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                </Border>
+                <Button Text="Copiar linha digitável" Command="{Binding CopiarCommand}" />
+                <Button Text="Abrir boleto (PDF)" Command="{Binding AbrirBoletoCommand}" IsVisible="{Binding TemBoletoUrl}" />
+                <Label Text="O boleto pode levar até 3 dias úteis para ser compensado." FontSize="13" HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Mensagem}" HorizontalOptions="Center" TextColor="#1B873F"
+                   IsVisible="{Binding Mensagem, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Label Text="Assim que o banco confirmar, a cobrança aparece como paga na aba Financeiro." FontSize="13"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+            <Button Text="Concluir" Command="{Binding ConcluirCommand}" BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <!-- Só aparece com o gateway simulado (ambiente de testes) -->
+            <Border IsVisible="{Binding Simulado}" Padding="12" StrokeThickness="1" Stroke="{StaticResource Primary}"
+                    StrokeDashArray="4,3" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Ambiente de testes: nenhum dinheiro real é cobrado." FontSize="13" HorizontalOptions="Center" />
+                    <Button Text="Simular pagamento confirmado" Command="{Binding SimularPagamentoCommand}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

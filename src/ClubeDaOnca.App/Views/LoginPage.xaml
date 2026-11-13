@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource OncaCreme}, Dark={StaticResource OncaNoite}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="32" Spacing="16" MaximumWidthRequest="420" VerticalOptions="Center">
+
+            <Image Source="logo.png" HeightRequest="180" WidthRequest="150" Aspect="AspectFit" HorizontalOptions="Center" />
+
+            <Label Text="Clube da Onça" Style="{StaticResource Headline}" />
+            <Label Text="Acesse com seu CPF ou e-mail" HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+            <Entry Placeholder="CPF ou e-mail" Text="{Binding Login}" Keyboard="Email"
+                   IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" ReturnType="Next"
+                   AutomationId="LoginEntry" />
+            <Entry Placeholder="Senha" Text="{Binding Senha}" IsPassword="True" ReturnType="Go"
+                   ReturnCommand="{Binding EntrarCommand}" AutomationId="SenhaEntry" />
+
+            <VerticalStackLayout Spacing="4" IsVisible="{Binding PodeTrocarServidor}">
+                <Label Text="Servidor (versão de teste)" FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                <Entry Placeholder="ex.: 192.168.3.196" Text="{Binding Servidor}" Keyboard="Url"
+                       IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" AutomationId="ServidorEntry" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Entrar" Command="{Binding EntrarCommand}" AutomationId="EntrarButton" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}"
+                               Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

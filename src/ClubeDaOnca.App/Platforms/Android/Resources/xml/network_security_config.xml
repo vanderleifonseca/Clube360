@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produção (Release): HTTP sem TLS liberado só para o emulador e o localhost. A API de produção usa HTTPS.
+     O build de teste (Debug) usa Platforms/Android/ResourcesTeste/xml/network_security_config.xml (ver o .csproj). -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

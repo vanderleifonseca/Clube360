@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Build de teste (Debug): HTTP sem TLS liberado para qualquer endereço, porque o servidor da API
+     (o PC de desenvolvimento na rede Wi-Fi) é digitado na tela de login e o IP muda. Nunca vai para produção. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

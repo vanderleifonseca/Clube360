@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.InicioPage"
+             x:DataType="vm:InicioViewModel"
+             Title="Início">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Sair" Command="{Binding SairCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+            <Label Text="{Binding Saudacao}" Style="{StaticResource Headline}" HorizontalOptions="Start" />
+            <Label Text="{Binding Perfis}"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+            <Border Style="{StaticResource Cartao}" IsVisible="{Binding EhSocio}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AbrirAvisosCommand}" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding TextoAvisos}" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="Comunicados do clube, eventos, mensalidades e contrato." FontSize="13" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Cartao}" IsVisible="{Binding EhPresidente}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AbrirFichasCommand}" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🏛️  Fichas para aprovação" FontAttributes="Bold" FontSize="17" />
+                    <Label Text="{Binding AvisoPresidencia}"
+                           TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                    <Label Text="Toque para ver os candidatos e dar o seu aval." FontSize="13" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Cartao}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Novidade: carteirinha digital" FontAttributes="Bold" />
+                    <Label Text="Abra a aba Carteirinha e apresente o QR Code na portaria. Ele muda a cada 30 segundos e funciona mesmo sem internet." />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Cartao}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Eventos" FontAttributes="Bold" />
+                    <Label Text="Veja os próximos eventos e reserve mesas e ambientes na aba Eventos." />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

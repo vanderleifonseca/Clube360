@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="../Clube360.Application/Clube360.Application.csproj" />
-    <PackageReference Include="Npgsql" Version="10.0.3" />
-  </ItemGroup>
-</Project>

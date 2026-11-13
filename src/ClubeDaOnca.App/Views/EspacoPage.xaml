@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             xmlns:services="clr-namespace:ClubeDaOnca.App.Services"
+             x:Class="ClubeDaOnca.App.Views.EspacoPage"
+             x:DataType="vm:EspacoViewModel"
+             Title="{Binding TituloPagina}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10" MaximumWidthRequest="640">
+            <Label Text="Nome" />
+            <Entry Text="{Binding Nome}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Tipo de local" />
+                <Picker Grid.Row="1" ItemsSource="{Binding TiposLocal}" SelectedItem="{Binding Tipo}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=services:Opcao}" />
+                <Label Grid.Column="1" Text="Capacidade (pessoas)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding Capacidade}" Keyboard="Numeric" />
+            </Grid>
+
+            <Label Text="Descrição (aparece para o sócio)" />
+            <Editor Text="{Binding Descricao}" AutoSize="TextChanges" MaxLength="500" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding Ativo}" />
+                <Label Text="Disponível para reservas" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="Dias de funcionamento" />
+            <FlexLayout BindableLayout.ItemsSource="{Binding Dias}" Wrap="Wrap">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DiaSemanaItem">
+                        <HorizontalStackLayout Margin="0,0,12,0">
+                            <CheckBox IsChecked="{Binding Marcado}" />
+                            <Label Text="{Binding Nome}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Abertura" />
+                <TimePicker Grid.Row="1" Time="{Binding Abertura}" Format="HH:mm" />
+                <Label Grid.Column="1" Text="Fechamento (00:00 = meia-noite)" />
+                <TimePicker Grid.Column="1" Grid.Row="1" Time="{Binding Fechamento}" Format="HH:mm" />
+            </Grid>
+
+            <Label Text="Duração de cada horário (minutos)" />
+            <Entry Text="{Binding DuracaoMinutos}" Keyboard="Numeric" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Antecedência mínima (horas)" />
+                <Entry Grid.Row="1" Text="{Binding AntecedenciaMinimaHoras}" Keyboard="Numeric" />
+                <Label Grid.Column="1" Text="Antecedência máxima (dias)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding AntecedenciaMaximaDias}" Keyboard="Numeric" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                <Label Text="Reservas ativas por título" />
+                <Entry Grid.Row="1" Text="{Binding LimiteReservasAtivas}" Keyboard="Numeric" />
+                <Label Grid.Column="1" Text="Cancelar até (horas antes)" />
+                <Entry Grid.Column="1" Grid.Row="1" Text="{Binding PrazoCancelamentoHoras}" Keyboard="Numeric" />
+            </Grid>
+
+            <Label Text="Taxa (R$)" />
+            <Entry Text="{Binding Taxa}" Keyboard="Numeric" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding ExigeAprovacao}" />
+                <Label Text="Exige aprovação da secretaria" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar" Command="{Binding SalvarCommand}" Margin="0,8,0,0"
+                    IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

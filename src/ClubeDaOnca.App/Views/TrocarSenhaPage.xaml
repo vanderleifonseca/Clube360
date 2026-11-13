@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClubeDaOnca.App.ViewModels"
+             x:Class="ClubeDaOnca.App.Views.TrocarSenhaPage"
+             x:DataType="vm:TrocarSenhaViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource OncaCreme}, Dark={StaticResource OncaNoite}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="32" Spacing="14" MaximumWidthRequest="420" VerticalOptions="Center">
+            <Label Text="Crie sua senha" Style="{StaticResource Headline}" />
+            <Label HorizontalTextAlignment="Center"
+                   Text="Você entrou com a senha provisória entregue pela secretaria. Para continuar, escolha uma senha pessoal."
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+            <Entry Placeholder="Senha provisória" Text="{Binding SenhaAtual}" IsPassword="True" />
+            <Entry Placeholder="Nova senha" Text="{Binding NovaSenha}" IsPassword="True" />
+            <Entry Placeholder="Repita a nova senha" Text="{Binding Confirmacao}" IsPassword="True"
+                   ReturnType="Go" ReturnCommand="{Binding SalvarCommand}" />
+
+            <Label FontSize="13" Text="Mínimo de 8 caracteres, com letra maiúscula, letra minúscula e número."
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+
+            <Label Text="{Binding Erro}" TextColor="{StaticResource Erro}"
+                   IsVisible="{Binding Erro, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" />
+
+            <Button Text="Salvar e continuar" Command="{Binding SalvarCommand}" IsEnabled="{Binding Ocupado, Converter={StaticResource InvertedBoolConverter}}" />
+            <Button Text="Sair" Command="{Binding SairCommand}" BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+            <ActivityIndicator IsRunning="{Binding Ocupado}" IsVisible="{Binding Ocupado}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
