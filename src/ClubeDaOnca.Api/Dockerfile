@@ -14,6 +14,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 RUN apt-get update     && apt-get install -y --no-install-recommends libreoffice-writer-nogui fonts-dejavu fonts-liberation     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app .
+# A API roda sem root: App_Data (e-mails em modo Arquivo, arquivos gerados) precisa ser gravável por esse usuário.
+RUN mkdir -p /app/App_Data && chown -R $APP_UID /app/App_Data
 USER $APP_UID
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "ClubeDaOnca.Api.dll"]

@@ -25,9 +25,12 @@
       ConnectionStrings__Default: Host=db;Port=5432;Database=clubedaonca;Username=clube;Password=clube_dev
     ports:
       - "5080:8080"
+    volumes:
+      - apidata:/app/App_Data # e-mails (modo Arquivo) e arquivos gerados sobrevivem a rebuilds
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  apidata:
