@@ -173,3 +173,7 @@ dotnet test tests/ClubeDaOnca.Api.Tests   # sobe um Postgres descartável via Do
 
 Configure por variáveis de ambiente (nunca no repositório):
 `ConnectionStrings__Default`, `Jwt__Chave` (32+ caracteres), `Carteirinha__ChaveMestra` (32+ caracteres; se for trocada, todos os QR Codes deixam de valer), as variáveis do Asaas (acima) e, no primeiro deploy, `AdminInicial__Email`/`AdminInicial__Senha`.
+
+### App no Google Play
+
+Veja [docs/PLAY_STORE.md](docs/PLAY_STORE.md): chave de upload, geração do `.aab` com `scripts/publicar-android.ps1`, teste interno e formulários do Play Console. A política de privacidade está em [docs/privacidade.html](docs/privacidade.html).

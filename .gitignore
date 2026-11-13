@@ -489,3 +489,6 @@ App_Data/
 src/ClubeDaOnca.Api/App_Data/
 # Configurações locais do Claude Code
 .claude/settings.local.json
+# Chaves de assinatura do Android (ficam em %USERPROFILE%\.chaves, nunca no repositório)
+*.keystore
+*.jks

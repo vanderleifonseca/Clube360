@@ -56,7 +56,6 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 		<MauiImage Update="Resources\Images\logo.png" Resize="True" BaseSize="214,256" />
 		
 		<!-- Custom Fonts -->
@@ -86,6 +85,20 @@
 		<AndroidResource Remove="Platforms\Android\Resources\xml\network_security_config.xml" />
 		<AndroidResource Include="Platforms\Android\ResourcesTeste\xml\network_security_config.xml" Link="Platforms\Android\Resources\xml\network_security_config.xml" />
 	</ItemGroup>
+
+	<!-- Google Play: Release do Android gera .aab. A assinatura com a chave de upload só é aplicada quando
+	     as variáveis CLUBE_KEYSTORE / CLUBE_KEYSTORE_ALIAS / CLUBE_KEYSTORE_SENHA existem (ver scripts/publicar-android.ps1);
+	     sem elas (ex.: CI) o build continua funcionando, só não sai assinado para a loja. -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android')) And '$(CLUBE_KEYSTORE)' != ''">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyStore>$(CLUBE_KEYSTORE)</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>$(CLUBE_KEYSTORE_ALIAS)</AndroidSigningKeyAlias>
+		<AndroidSigningStorePass>env:CLUBE_KEYSTORE_SENHA</AndroidSigningStorePass>
+		<AndroidSigningKeyPass>env:CLUBE_KEYSTORE_SENHA</AndroidSigningKeyPass>
+	</PropertyGroup>
 
 	<!-- URL da API fixada no build (ex.: -p:ApiUrl=http://192.168.3.196:5080 para testar no celular pelo Wi-Fi). -->
 	<ItemGroup Condition="'$(ApiUrl)' != ''">
